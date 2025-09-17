@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula Dev | Documentação Oficial</title>
+    <style>
+        /* ---------- Reset Styles ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ---------- Global Variables ---------- */
+        :root {
+            --background-dark: #0a0a0f; /* Fundo muito escuro, quase preto */
+            --sidebar-bg: #110f1a; /* Roxo escuro para a sidebar */
+            --content-bg: #1a1a23; /* Cinza escuro para o conteúdo */
+            --primary-purple: #8A2BE2; /* Roxo vibrante (Blue Violet) */
+            --secondary-purple: #6A0DAD; /* Roxo mais escuro */
+            --accent-green: #32CD32; /* Verde Limão para destaques e títulos */
+            --text-light: #e0e0e0; /* Texto principal claro */
+            --text-muted: #b0b0b0; /* Texto secundário/descrições */
+            --border-color: rgba(138, 43, 226, 0.3); /* Borda com a cor roxa */
+            --code-bg: #181422; /* Fundo de blocos de código */
+            --hover-shadow: rgba(138, 43, 226, 0.35);
+        }
+
+        /* ---------- Base ---------- */
+        html {
+            scroll-behavior: smooth; /* Animação suave ao rolar para âncoras */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.7;
+            overflow-x: hidden; /* Previne scroll horizontal */
+            display: flex; /* Usa flexbox para layout */
+        }
+
+        /* ---------- Layout ---------- */
+        .wrapper {
+            display: flex; /* Flexbox para sidebar e conteúdo */
+            width: 100%;
+        }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            background: var(--sidebar-bg);
+            width: 280px; /* Largura fixa para a sidebar */
+            min-width: 280px;
+            height: 100vh; /* Altura total da viewport */
+            position: sticky;
+            top: 0;
+            overflow-y: auto; /* Permite scroll se o conteúdo for muito longo */
+            padding: 35px 25px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-title {
+            color: var(--accent-green);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(50, 205, 50, 0.5); /* Efeito de brilho verde */
+        }
+
+        .sidebar nav a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin: 12px 0;
+            font-size: 17px;
+            padding: 8px 15px;
+            border-left: 4px solid transparent;
+            transition: color .3s ease, border-left-color .3s ease, transform .2s ease;
+            border-radius: 0 6px 6px 0; /* Cantos arredondados na esquerda */
+        }
+
+        .sidebar nav a:hover {
+            color: var(--primary-purple); /* Muda para roxo ao passar o mouse */
+            border-left: 4px solid var(--primary-purple);
+            transform: translateX(5px); /* Pequeno deslocamento */
+            text-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        }
+
+        .sidebar nav a.active { /* Estilo para o link ativo (pode ser controlado por JS) */
+            color: #fff;
+            border-left: 4px solid var(--primary-purple);
+            font-weight: 600;
+            background-color: rgba(106, 13, 173, 0.2); /* Fundo sutil roxo para o ativo */
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* ---------- Main Content ---------- */
+        .content {
+            flex-grow: 1; /* Faz o conteúdo ocupar o espaço restante */
+            padding: 60px 80px; /* Mais padding para um visual espaçado */
+            max-width: 1000px; /* Limita a largura máxima para melhor legibilidade */
+            margin: 0 auto; /* Centraliza o bloco de conteúdo */
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content h2 {
+            font-size: 32px;
+            color: var(--accent-green);
+            margin-top: 50px;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Espaço entre emoji e texto */
+        }
+
+        .content h2:first-of-type { /* Título principal da página */
+            margin-top: 0;
+        }
+
+        .content h3 {
+            font-size: 22px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            color: var(--primary-purple); /* Título de seção secundário roxo */
+            font-weight: 600;
+        }
+
+        .content p {
+            font-size: 17px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            text-align: justify; /* Justifica o texto para um visual mais limpo */
+        }
+
+        .content p strong {
+            color: var(--text-light); /* Palavras em negrito com cor clara */
+        }
+
+        /* ---------- Code Blocks ---------- */
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto; /* Scroll horizontal se o código for muito longo */
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        pre:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        pre code {
+            font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: var(--accent-green); /* Código em verde */
+            display: block; /* Para melhor formatação */
+            white-space: pre; /* Mantém espaços e quebras de linha */
+            font-size: 14px;
+        }
+
+        /* ---------- Tables ---------- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: var(--content-bg);
+            border-radius: 8px;
+            overflow: hidden; /* Aplica bordas arredondadas à tabela */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        table:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background: var(--sidebar-bg); /* Fundo roxo escuro para cabeçalhos */
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        td {
+            color: var(--text-muted);
+        }
+
+        td code {
+            color: var(--accent-green); /* Código em célula em verde */
+        }
+
+        /* ---------- Links ---------- */
+        a {
+            color: var(--primary-purple);
+            text-decoration: none;
+            transition: color .3s ease, text-shadow .3s ease;
+        }
+        a:hover {
+            color: #fff; /* Muda para branco ao passar o mouse */
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Efeito de brilho */
+        }
+
+        /* ---------- Call to Action (CTA) Button ---------- */
+        .cta-button {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 14px 30px;
+            background-color: var(--primary-purple);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color .3s ease, transform .2s ease, box-shadow .3s ease;
+            box-shadow: 0 5px 20px var(--hover-shadow); /* Sombra roxa */
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary-purple); /* Roxo mais escuro ao hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106, 13, 173, 0.4);
+        }
+
+        /* ---------- Lists ---------- */
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* ---------- Footer ---------- */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px 0;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        footer:hover {
+            opacity: 1;
+        }
+        footer a {
+            color: var(--primary-purple);
+        }
+        footer a:hover {
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        /* ---------- Responsive Design ---------- */
+        @media (max-width: 992px) {
+            .wrapper {
+                flex-direction: column; /* Empilha sidebar e conteúdo em telas menores */
+            }
+            .sidebar {
+                width: 100%;
+                height: auto; /* Altura ajustável */
+                min-height: 30vh; /* Altura mínima para a sidebar */
+                position: relative; /* Remove posicionamento fixo */
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 25px 20px;
+            }
+            .sidebar-title {
+                margin-bottom: 25px;
+            }
+            .content {
+                padding: 40px 20px; /* Reduz padding em telas menores */
+                max-width: 100%; /* Ocupa largura total */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h1 class="sidebar-title">Nebula Docs</h1>
+            <nav>
+                <a href="#introducao">🚀 Introdução</a>
+                <a href="#estrutura">🐙 Estrutura do Projeto</a>
+                <a href="#api">🌐 API do Nebula OS</a>
+                <a href="#guias">📚 Guias e Tutoriais</a>
+                <a href="#cli">🛠️ Ferramentas CLI</a>
+                <a href="#publicacao">☁️ Publicação no Nebula OS</a>
+                <a href="#faq">❓ FAQ</a>
+                <a href="#licenca">📜 Licença</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <h1 id="introducao" style="font-size: 36px; color: var(--primary-purple); margin-top: 0;">
+                Bem-vindo à Documentação Oficial do Nebula Dev
+                <span style="color: var(--accent-green); font-size: 1.2em;">.</span>
+            </h1>
+            <p>
+                Explore o universo do Nebula OS e descubra como transformar suas ideias em aplicações robustas e inovadoras. Esta documentação é o seu guia completo para o desenvolvimento na nossa plataforma, desde os primeiros passos até a publicação de seus projetos.
+            </p>
+
+            <h2 id="estrutura">🐙 Estrutura do Projeto</h2>
+            <p>
+                Entenda a organização padrão de um projeto Nebula para navegar facilmente e gerenciar seus arquivos. Um projeto bem estruturado facilita a colaboração e a manutenção.
+            </p>
+            <pre><code>.
+├── apps/
+│   ├── meu-primeiro-app/
+│   │   ├── src/          # Código fonte da aplicação
+│   │   │   ├── main.nbl  # Ponto de entrada principal (ex: Python, JS)
+│   │   │   ├── ui/       # Componentes de interface
+│   │   │   └── data/     # Lógica de acesso a dados
+│   │   ├── nebula.config # Configurações específicas da aplicação
+│   │   └── README.md
+├── nebula.config         # Configurações globais do toolkit
+├── docs/                 # Documentação específica do projeto (opcional)
+├── tests/                # Testes automatizados
+└── README.md             # Informações gerais do projeto
+</code></pre>
+            <h3>Convenções Importantes</h3>
+            <ul>
+                <li>Nomes de aplicações e pastas devem ser em minúsculas e usar hifens (<code>kebab-case</code>).</li>
+                <li>Arquivos de configuração seguem o padrão <code>*.config</code>.</li>
+                <li>Utilize <code>README.md</code> para documentar cada subdiretório importante e sua funcionalidade.</li>
+                <li>A linguagem de script primária é <strong>Python</strong>, mas o Nebula OS é compatível com outras através de contêineres.</li>
+            </ul>
+
+            <h2 id="api">🌐 API do Nebula OS</h2>
+            <p>
+                Aproveite o poder da Nebula OS com nossa API RESTful robusta. Abaixo, os endpoints principais para interagir com o sistema, permitindo gerenciamento completo de suas aplicações.
+            </p>
+            <h3>Autenticação da API</h3>
+            <p>Todas as requisições à API requerem um token de autenticação válido. Você pode obtê-lo através do painel de desenvolvedor na Nebula Cloud ou via CLI com o comando <code>nebula auth login</code>.</p>
+            <p>Inclua seu token no header da requisição:</p>
+            <pre><code>Authorization: Bearer SEU_TOKEN_AQUI</code></pre>
+
+            <h3>Endpoints Essenciais</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Endpoint</th>
+                        <th>Descrição</th>
+                        <th>Nível de Acesso (Guardian)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td><code>/v1/apps</code></td>
+                        <td>Lista todas as aplicações registradas no Nebula OS.</td>
+                        <td><code>viewer</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td><code>/v1/apps</code></td>
+                        <td>Registra uma nova aplicação. Requer corpo JSON com detalhes da app.</td>
+                        <td><code>developer</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td><code>/v1/apps/{appId}</code></td>
+                        <td>Obtém detalhes de uma aplicação específica pelo seu ID.</td>
+                        <td><code>developer</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>PUT</code></td>
+                        <td><code>/v1/apps/{appId}</code></td>
+                        <td>Atualiza os metadados de uma aplicação existente.</td>
+                        <td><code>developer</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>DELETE</code></td>
+                        <td><code>/v1/apps/{appId}</code></td>
+                        <td>Remove uma aplicação do sistema Nebula OS.</td>
+                        <td><code>admin</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td><code>/v1/deploy/{appId}</code></td>
+                        <td>Inicia o processo de deploy (implantação) de uma aplicação registrada.</td>
+                        <td><code>developer</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td><code>/v1/status/{appId}</code></td>
+                        <td>Verifica o status atual de uma aplicação (ex: running, stopped, deploying).</td>
+                        <td><code>viewer</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Exemplo de Requisição (Criar Nova Aplicação)</h3>
+            <pre><code>POST /v1/apps
+Host: api.nebulaos.dev
+Authorization: Bearer SEU_TOKEN_AQUI
+Content-Type: application/json
+
+{
+  "name": "Meu App Incrível",
+  "version": "1.0.0",
+  "description": "Uma aplicação fantástica para demonstrar o poder do Nebula OS.",
+  "entry_point": "src/main.py",
+  "runtime": "python3.10"
+}</code></pre>
+            <h3>Exemplo de Resposta (App Registrado com Sucesso)</h3>
+            <pre><code>{
+  "id": "app_123abc456",
+  "name": "Meu App Incrível",
+  "status": "registered",
+  "created_at": "2024-09-15T10:30:00Z",
+  "updated_at": "2024-09-15T10:30:00Z"
+}</code></pre>
+
+            <h2 id="guias">📚 Guias e Tutoriais</h2>
+            <p>
+                Aprenda a desenvolver para o Nebula OS com nossos guias práticos e detalhados. Cobrimos desde a configuração inicial até a otimização de performance e publicação.
+            </p>
+            <ul>
+                <li><a href="#tutorial-primeiro-app">Criando seu Primeiro App Nebula: Do Zero ao Deploy</a></li>
+                <li><a href="#tutorial-ui-design">Design de Interfaces Modernas com o Nebula UI Toolkit</a></li>
+                <li><a href="#tutorial-database">Integrando Banco de Dados Persistente e Escalável</a></li>
+                <li><a href="#tutorial-ci-cd">Automatizando Builds e Deploy com CI/CD</a></li>
+                <li><a href="#tutorial-observability">Monitoramento e Observabilidade de Aplicações</a></li>
+            </ul>
+            <h3 id="tutorial-primeiro-app">Criando seu Primeiro App Nebula</h3>
+            <p>Siga este guia passo a passo para criar, rodar e entender a estrutura básica de sua primeira aplicação Nebula.</p>
+            <ol>
+                <li>Abra seu terminal e execute: <code>nebula create meu-app-simples</code>. Isso criará a estrutura básica do projeto.</li>
+                <li>Navegue até o diretório do projeto: <code>cd meu-app-simples</code>.</li>
+                <li>Edite o arquivo de ponto de entrada principal (geralmente em <code>src/main.py</code>) para adicionar sua lógica.</li>
+                <li>Execute sua aplicação localmente com: <code>nebula run meu-app-simples</code> para testes rápidos.</li>
+                <li>Para preparar para publicação, use: <code>nebula build meu-app-simples</code>.</li>
+            </ol>
+
+            <h2 id="cli">🛠️ Ferramentas CLI Essenciais</h2>
+            <p>
+                Domine a linha de comando com o Nebula Dev Toolkit. Uma suíte poderosa para gerenciar todo o ciclo de vida de suas aplicações, desde a criação até a implantação e monitoramento.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Comando</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>nebula create &lt;nome_app&gt;</code></td>
+                        <td>Cria uma nova estrutura de projeto para uma aplicação Nebula com base em templates.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula build [app_name]</code></td>
+                        <td>Compila e otimiza o código de uma aplicação para ambiente de produção.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula run [app_name]</code></td>
+                        <td>Executa uma aplicação localmente para testes e desenvolvimento iterativo.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula deploy [app_name]</code></td>
+                        <td>Publica a aplicação compilada no Nebula OS, tornando-a disponível para usuários ou para o marketplace.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula logs [app_name]</code></td>
+                        <td>Exibe os logs de execução de uma aplicação em tempo real ou de execuções passadas.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula auth login</code></td>
+                        <td>Inicia o fluxo de autenticação para conectar sua máquina à Nebula Cloud, gerando um token de acesso.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula ps [app_name]</code></td>
+                        <td>Lista o status das aplicações rodando no seu ambiente local ou no Nebula OS.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nebula help [comando]</code></td>
+                        <td>Exibe ajuda detalhada e exemplos de uso para um comando específico do Nebula CLI.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 id="publicacao">☁️ Publicação no Nebula OS Marketplace</h2>
+            <p>
+                Transforme seu projeto em um aplicativo disponível para milhares de usuários no Nebula OS. Entenda o processo de submissão, revisão e publicação.
+            </p>
+            <ol>
+                <li>Certifique-se de que sua aplicação está compilada e otimizada: <code>nebula build nome-do-seu-app</code>.</li>
+                <li>Revise cuidadosamente os <a href="#requisitos-marketplace">Requisitos de Publicação</a> para garantir conformidade com os padrões do Nebula OS (segurança, performance, UX).</li>
+                <li>Submeta seu aplicativo usando o comando: <code>nebula deploy nome-do-seu-app</code>. Este comando também iniciará o processo de envio para revisão.</li>
+                <li>Acompanhe o status da sua submissão através do <a href="#painel-dev">Painel do Desenvolvedor</a> na Nebula Cloud.</li>
+            </ol>
+            <p>
+                A preparação para o marketplace é crucial. Consulte a seção <a href="#requisitos-marketplace">Requisitos de Publicação</a> para detalhes sobre diretrizes de design, requisitos de segurança, performance e usabilidade.
+            </p>
+
+            <h2 id="faq">❓ FAQ (Perguntas Frequentes)</h2>
+            <p>
+                Aqui você encontra respostas rápidas para as dúvidas mais comuns. Se sua pergunta não for respondida, sinta-se à vontade para nos contatar.
+            </p>
+            <h3>Q: Qual a linguagem principal para desenvolvimento no Nebula OS?</h3>
+            <p>R: A linguagem primária e mais integrada é o <strong>Python</strong>, com um ecossistema robusto e otimizado para nossa plataforma. No entanto, o Nebula OS suporta o uso de outras linguagens e frameworks através de contêineres, oferecendo grande flexibilidade.</p>
+
+            <h3>Q: É possível utilizar frameworks como React ou Vue.js?</h3>
+            <p>R: Sim! Você pode desenvolver o frontend de suas aplicações com seus frameworks JavaScript preferidos. O Nebula OS fornece ferramentas para integrar essas aplicações ao sistema.</p>
+
+            <h3>Q: Como funciona o sistema de permissões (Nebula Guardian)?</h3>
+            <p>R: O Nebula Guardian é o nosso sistema de controle de acesso baseado em papéis (RBAC). Ele define o que cada usuário ou serviço pode fazer na plataforma, desde a simples visualização até a administração completa de aplicações. Os níveis comuns incluem <code>viewer</code>, <code>developer</code> e <code>admin</code>.</p>
+
+            <h3>Q: Onde posso reportar um bug ou sugerir uma melhoria?</h3>
+            <p>R: Encorajamos a participação da comunidade! Você pode reportar bugs e sugerir melhorias através do nosso <a href="#feedback">fórum de comunidade</a> ou abrindo uma 'issue' diretamente em nosso <a href="#github-repo">repositório oficial no GitHub</a>.</p>
+
+            <h2 id="licenca">📜 Licença</h2>
+            <p>
+                O Nebula Dev Toolkit e o núcleo do Nebula OS são distribuídos sob a licença **MIT**. Esta licença permissiva permite que você use, modifique, distribua e até mesmo comercialize software derivado livremente, com a única condição de manter a atribuição original e os avisos de direitos autorais.
+            </p>
+            <p>
+                Para obter os termos completos e detalhes sobre direitos e obrigações, por favor, consulte o arquivo <code>LICENSE</code> na raiz do repositório do Nebula OS.
+            </p>
+
+            <footer>
+                <p>&copy; 2024 Nebula Corp. Todos os direitos reservados.</p>
+                <p>Documentação gerada em <span id="generation-date"></span>.</p>
+                <p><a href="#">Termos de Serviço</a> | <a href="#">Política de Privacidade</a> | <a href="#">Contato</a></p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Atualiza a data de geração no rodapé
+        document.getElementById('generation-date').textContent = new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // --- Script para Gerenciamento do Link Ativo na Sidebar ---
+        const sidebarLinks = document.querySelectorAll('.sidebar nav a');
+        const contentSections = document.querySelectorAll('.content > h2, .content > h3'); // Seleciona títulos e subtítulos
+
+        // Função para atualizar o link ativo com base na rolagem
+        function updateActiveLink() {
+            let currentSectionId = null;
+            let maxVisibleSectionTop = -Infinity; // Para encontrar a seção mais "próxima" do topo
+
+            contentSections.forEach(section => {
+                const sectionTop = section.offsetTop - 100; // Ajuste para o offset da navbar/sidebar
+                const sectionHeight = section.clientHeight;
+                const windowScrollY = window.scrollY;
+
+                // Verifica se a seção está visível ou logo acima da área visível
+                if (windowScrollY >= sectionTop && windowScrollY < sectionTop + sectionHeight) {
+                    if (sectionTop > maxVisibleSectionTop) { // Prioriza a seção mais alta visível
+                        maxVisibleSectionTop = sectionTop;
+                        currentSectionId = section.getAttribute('id');
+                    }
+                } else if (windowScrollY < sectionTop && currentSectionId === null) {
+                    // Se ainda não achou nenhuma e esta seção está abaixo,
+                    // a mais recente acima é candidata.
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === currentSectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Listener de scroll para atualizar o link ativo
+        window.addEventListener('scroll', updateActiveLink);
+
+        // Atualiza o link ativo ao carregar a página (caso o hash já esteja definido)
+        // e garante que a página role até o elemento correto.
+        window.addEventListener('load', () => {
+            // Define o link ativo inicialmente
+            updateActiveLink();
+
+            // Se houver um hash na URL, rola suavemente para o elemento correspondente
+            if (window.location.hash) {
+                const targetElement = document.querySelector(window.location.hash);
+                if (targetElement) {
+                    // Usa scrollIntoView com um pequeno offset para garantir que o título não fique escondido
+                    // pela sidebar/navbar fixa (mesmo que não haja uma navbar fixa neste caso,
+                    // o comportamento é mais agradável).
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Atualiza o link ativo após a rolagem
+                    setTimeout(updateActiveLink, 500); // Pequeno delay para garantir que a rolagem terminou
+                }
+            }
+        });
+    </script>
+</body>
+</html>

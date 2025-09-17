@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQUARE  Dev - Hub de Desenvolvimento</title>
+<style>
+/* ---------- Reset ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ---------- Base ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0e0e0e;            /* Preto elegante */
+    color: #e5e5e5;
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+/* Links padrão */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ---------- Top Bar ---------- */
+.top-bar {
+    background: #111;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(6px);
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #4caf50;
+    letter-spacing: 1px;
+    transition: transform .3s ease;
+}
+.logo span { color: #e5e5e5; }
+.logo:hover { transform: scale(1.05); }
+
+.top-bar nav a {
+    margin-left: 30px;
+    font-size: 16px;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color .3s ease;
+}
+.top-bar nav a::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    left: 0;
+    bottom: 0;
+    background: #4caf50;
+    transition: width .3s ease;
+}
+.top-bar nav a:hover {
+    color: #4caf50;
+}
+.top-bar nav a:hover::after {
+    width: 100%;
+}
+
+/* ---------- Container ---------- */
+.main-container {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 0 30px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 50px;
+    animation: fadeIn 1s ease forwards;
+}
+
+/* ---------- Conteúdo Esquerdo ---------- */
+.content-left {
+    background: #1a1a1a;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+.content-left:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 35px rgba(0,0,0,0.45);
+}
+
+.content-left h1 {
+    font-size: 38px;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+.subtitle {
+    font-size: 18px;
+    color: #aaa;
+    margin-bottom: 35px;
+}
+
+/* ---------- Seções ---------- */
+.feature-section {
+    margin-bottom: 50px;
+}
+.feature-section h2 {
+    font-size: 26px;
+    color: #4caf50;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 8px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+    transition: transform .3s ease;
+}
+.feature-item:hover { transform: translateX(6px); }
+
+.feature-item img {
+    width: 55px;
+    height: 55px;
+    background: rgba(76,175,80,0.15);
+    padding: 12px;
+    border-radius: 14px;
+    transition: transform .3s ease;
+}
+.feature-item:hover img { transform: rotate(6deg) scale(1.05); }
+
+.feature-item-text h3 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #e5e5e5;
+}
+.feature-item-text p {
+    font-size: 15px;
+    color: #bbb;
+}
+
+/* ---------- Sidebar ---------- */
+.content-right {
+    background: #1a1a1a;
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+.developer-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #4caf50;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(76,175,80,0.5);
+    transition: transform .4s ease;
+}
+.developer-image:hover { transform: scale(1.05) rotate(2deg); }
+
+.content-right h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+    color: #fff;
+}
+.developer-role {
+    font-size: 16px;
+    color: #aaa;
+    margin-bottom: 25px;
+}
+
+/* ---------- Botão ---------- */
+.follow-button {
+    padding: 12px 34px;
+    background: #4caf50;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background .3s ease, transform .2s ease, box-shadow .3s ease;
+    box-shadow: 0 0 15px rgba(76,175,80,0.4);
+}
+.follow-button:hover {
+    background: #43a047;
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(76,175,80,0.55);
+}
+.follow-button:active {
+    transform: translateY(0);
+}
+
+/* ---------- Footer ---------- */
+footer {
+    text-align: center;
+    padding: 35px 20px;
+    background: #111;
+    color: #777;
+    font-size: 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to   { opacity: 1; transform: translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="logo">SQUARE <span>Dev</span></div>
+    <nav>
+        <a href="#overview">Visão Geral</a>
+        <a href="#features">Recursos</a>
+        <a href="#about">Sobre</a>
+    </nav>
+</header>
+
+<main class="main-container">
+    <section class="content-left">
+        <h1>Bem-vindo ao SQUARE  Dev</h1>
+        <p class="subtitle">SQUARE  Dev, é a plataforma oficial de desenvolvimento e distribuição para o SQUARE  OS.
+É nela que os desenvolvedores:
+
+Criam e testam seus aplicativos em um ambiente totalmente integrado.
+
+Publicam e atualizam apps diretamente no SQUARE  OS com deploy em um clique.
+
+Acompanham métricas em tempo real, recebem feedback dos usuários e escalam recursos automaticamente.
+</p>
+
+        <section id="overview" class="feature-section">
+            <h2>Visão Geral</h2>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/ios-filled/50/4caf50/rocket.png" alt="Foguete">
+                <div class="feature-item-text">
+                    <h3>Lançamento Rápido</h3>
+                    <p>Implante seus aplicativos com agilidade, em até 3 dias tenha seu app em produção dentro do SQUARE .</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/ios-filled/50/4caf50/code-file.png" alt="Código">
+                <div class="feature-item-text">
+                    <h3>Ferramentas Poderosas</h3>
+                    <p>Nossa linguagem de desenvolvimento e documentação forte permite você desenvolver tudo com mais agilidade</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/ios-filled/50/4caf50/cloud-sync.png" alt="Nuvem">
+                <div class="feature-item-text">
+                    <h3>Escalabilidade na Nuvem</h3>
+                    <p>Soluções projetadas para crescer com seu projeto, sem limites.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/?size=100&id=VTMzEpcRtXEh&format=png&color=40C057" alt="Nuvem">
+                <div class="feature-item-text">
+                    <h3>OS NOVO</h3>
+                    <p>Seja um dos primeiros a ter um app em nosso sistema operacional</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="feature-section">
+            <h2>Recursos Principais</h2>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/ios-filled/50/4caf50/collaboration.png" alt="Colaboração">
+                <div class="feature-item-text">
+                    <h3>Colaboração Simplificada</h3>
+                    <p>Trabalhe em equipe com controle de versão integrado e compartilhamento ágil.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/?size=100&id=JtOasgwoFNyW&format=png&color=40C057" alt="Dashboard">
+                <div class="feature-item-text">
+                    <h3>Monitoramento Inteligente</h3>
+                    <p>Acompanhe desempenho, logs e métricas em tempo real com dashboards personalizáveis.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img src="https://img.icons8.com/?size=100&id=16650&format=png&color=40C057" alt="Dashboard">
+                <div class="feature-item-text">
+                    <h3>Ferramentas anti-malware</h3>
+                    <p>Tenha acesso livre a ferramentas anti-malware, contra sql-injector entre outras</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <aside class="content-right" id="about">
+        <img src="https://images.unsplash.com/photo-1518770660430-4468a01810c8?q=80&w=1974&auto=format&fit=crop" 
+             alt="Desenvolvedor" class="developer-image">
+        <h3>Equipe SQUARE OS Dev</h3>
+        <p class="developer-role">Inovação e Suporte ao Desenvolvedor</p>
+        <p style="font-size:14px;color:#bbb;margin-bottom:30px;">
+            Junte-se à comunidade crescente de desenvolvedores que estão construindo o futuro com SQUARE Dev.
+        </p>
+        <button class="follow-button">PROSSEGUIRT</button>
+    </aside>
+</main>
+
+<footer>
+    &copy; 2025 SQUARE Dev. Todos os direitos reservados.
+</footer>
+
+</body>
+</html>
