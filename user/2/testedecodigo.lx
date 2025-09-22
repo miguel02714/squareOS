@@ -1,0 +1,4 @@
+sqr init project
+# O restante do seu código vem aqui
+var nome = "Miguel"
+sqr printinfo nome

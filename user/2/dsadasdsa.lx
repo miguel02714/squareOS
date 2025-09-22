@@ -1,0 +1,18 @@
+sqr init project
+
+# Cria uma variável chamada 'nome' e atribui um valor de texto.
+var nome = "Miguel"
+
+# Cria uma variável chamada 'idade' e atribui um valor numérico.
+var idade = 42
+
+# Imprime o valor da variável 'nome'.
+sqr printinfo nome
+
+# Imprime o valor da variável 'idade'.
+sqr printinfo idade
+
+# Imprime uma mensagem de texto (string).
+sqr printinfo "Execução concluída com sucesso!"
+
+```

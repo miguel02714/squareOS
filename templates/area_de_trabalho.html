@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>SquareOS</title>
+<link rel="icon" href="assets/icones/icones 1/logo.png" type="image/png">
+<style>
+/* Reset e global */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh; /* Usa 100% da altura da janela visível */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #e0e0e0;
+    overflow: hidden; /* Evita barras de rolagem */
+
+    /* Configurações do wallpaper */
+      background: url('https://i.postimg.cc/L5DMTYM8/T-2.jpg') center/cover no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* Bloqueia seleção de texto */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Div de pré-visualização do wallpaper */
+.wallpaper-preview {
+    margin-top: 10px;
+    width: 100%;
+    height: 200px;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #666;
+    font-size: 14px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Div de notificações */
+#notificacoes {
+    position: fixed;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: auto;
+    min-height: 100px;
+    background: rgba(40, 40, 40, 0.7);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: top 0.4s ease, opacity 0.4s ease;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    opacity: 0;
+}
+
+/* Quando ativa */
+#notificacoes.show {
+    top: 20px;
+    opacity: 1;
+}
+
+#notificacoes h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+#notificacoes p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.4;
+}
+
+#topo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+
+/* Topbar */
+.topbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 36px;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    font-size: 14px;
+}
+.topbar #clock {
+    margin: auto;
+    font-weight: bold;
+    font-size: 30px;
+    margin-top: 50px;
+}
+
+/* Desktop */
+.desktop {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    flex-direction: column;
+    max-width: 1000px;
+}
+.icon {
+    width: 86px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+}
+.icon img {
+    width: 61px;
+    height: 61px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    transition: all 0.2s;
+}
+.icon img:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Dock */
+.dock {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 14px;
+    background: rgba(20, 20, 20, 0.6);
+    padding: 10px 16px;
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+}
+.dock-icon {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.dock-icon:hover {
+    transform: scale(1.4);
+}
+
+/* Janelas estilo macOS */
+.window {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    width: 720px;
+    height: 480px;
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* Cabeçalho minimalista */
+.window-header {
+    height: 30px;
+    background: rgba(0, 0, 0, 0.35);
+    color: #e0e0e0;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    cursor: move;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+/* Controles mais suaves */
+.window-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+.control-btn:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Cores sutis inspiradas em macOS */
+.close { background: #ff5f56; }
+.min { background: #ffbd2e; }
+.max { background: #27c93f; }
+
+/* File list */
+#file-list {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    background: #1e1e1e;
+}
+
+.file-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+    height: 160px; /* Mantém a altura fixa, se necessário */
+}
+.file-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.file-item img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+}
+.file-item span {
+    color: #fff;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+/* Editor */
+#file-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+#editor-text {
+    flex: 1;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    outline: none;
+    background: #111;
+    color: #0f0;
+    font-family: "Monaco", monospace;
+    font-size: 14px;
+    border-radius: 0 0 12px 12px;
+    resize: none;
+}
+#editor-controls {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px;
+    background: #1a1a1a;
+    border-radius: 0 0 12px 12px;
+}
+#editor-controls button {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 8px;
+    color: #e0e0e0;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+#editor-controls button:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Upload */
+.upload-bar {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #1f1f1f;
+    border-radius: 12px;
+    align-items: center;
+}
+.upload-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.upload-input:hover {
+    border-color: #555;
+    background: #333;
+}
+.upload-btn {
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.upload-btn:hover {
+    background: #005ecb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.upload-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Terminal */
+#terminal pre {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    background: #1b1b1b;
+    color: #0f0;
+    font-family: "Monaco", "Courier New", monospace;
+}
+#term-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 8px;
+    background: #111;
+    color: #821ab3;
+    font-family: "Monaco", monospace;
+    font-size: 14px;
+}
+
+/* Context menu */
+#context-menu {
+    position: absolute;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px 0;
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+}
+#context-menu button {
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 6px 16px;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+}
+#context-menu button:hover {
+    background: #555;
+}
+
+/* Aparência App */
+#appearance {
+    flex-direction: column;
+}
+#appearance label {
+    margin: 8px 0;
+}
+#appearance input[type=color] {
+    margin-left: 8px;
+    cursor: pointer;
+}
+#appearance button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+/* Iframe apps full */
+.window iframe {
+    flex: 1;
+    border: none;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar"><span id="clock"></span></div>
+
+<div class="desktop">
+  <div class="icon" data-app="files"><img src="https://i.postimg.cc/dtB5mRdc/Gemini-Generated-Image-asky0uasky0uasky-1-removebg-preview-1-removebg-preview.png"/><p>Arquivos</p></div>
+  <div class="icon" data-app="terminal"><img src="https://img.icons8.com/fluency/96/console.png"/><p>Terminal</p></div>
+  <div class="icon" data-app="mail"><img src="https://i.postimg.cc/h4TfLRzf/image-removebg-preview-2.png"/><p>Mail</p></div>
+  <div class="icon" data-app="calc"><img src="https://i.postimg.cc/Dw2TjzHt/image-removebg-preview-1.png"/><p>Calculadora</p></div>
+  <div class="icon" data-app="appearance"><img src="https://img.icons8.com/fluency/96/settings.png"/><p>Configuração</p></div>
+  <div class="icon" id="open-ide" data-app="code">
+  <img src="https://cdn-icons-png.flaticon.com/128/18968/18968740.png"/>
+  <p>Square Code</p>
+</div>
+<script>
+document.getElementById("open-ide").addEventListener("click", async () => {
+    try {
+        const res = await fetch("/iride", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ app: "Square Code" })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            // aqui você pode redirecionar, abrir a IDE, etc.
+            window.location.href = "/ide";
+        } else {
+            alert("Erro: " + data.error);
+        }
+    } catch (err) {
+        alert("Falha na requisição: " + err.message);
+    }
+});
+</script>
+
+</div>
+
+<div class="dock">
+    <div class="dock-icon" data-app="files"><img src="https://img.icons8.com/fluency/48/folder-invoices.png"/></div>
+    <div class="dock-icon" data-app="terminal"><img src="https://img.icons8.com/fluency/48/console.png"/></div>
+    <div class="dock-icon" data-app="mail"><img src="https://img.icons8.com/fluency/48/apple-mail.png"/></div>
+    <div class="dock-icon" data-app="calc"><img src="https://img.icons8.com/fluency/48/calculator.png"/></div>
+    <div class="dock-icon" data-app="appearance"><img src="https://img.icons8.com/fluency/48/settings.png"/></div>
+    
+    <button id="openMenuBtn" class="dock-icon"><img src="https://img.icons8.com/fluency/48/list--v1.png"/></button>
+</div>
+<div id="iconMenu" class="icon-menu">
+    <div class="menu-item" data-app="files">
+        <img src="https://img.icons8.com/fluency/48/folder-invoices.png"/>
+        <span>Arquivos</span>
+    </div>
+    <div class="menu-item" data-app="terminal">
+        <img src="https://img.icons8.com/fluency/48/console.png"/>
+        <span>Terminal</span>
+    </div>
+    <div class="menu-item" data-app="mail">
+        <img src="https://img.icons8.com/fluency/48/apple-mail.png"/>
+        <span>Email</span>
+    </div>
+    <div class="menu-item" data-app="calc">
+        <img src="https://img.icons8.com/fluency/48/calculator.png"/>
+        <span data-app="calculadora">Calculadora</span>
+    </div>
+    <div class="menu-item" data-app="rede">
+        <img src="https://img.icons8.com/fluency/48/network.png"/>
+        <span>Rede</span>
+    </div>
+    <div class="menu-item" data-app="intelligence">
+        <img src="https://img.icons8.com/fluency/48/artificial-intelligence.png"/>
+        <span>IA</span>
+    </div>
+    <div class="menu-item" data-app="appearance">
+        <img src="https://img.icons8.com/fluency/48/settings.png"/>
+        <span>Aparência</span>
+    </div>
+</div>
+<style>
+  body {
+    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.dock {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: fixed;
+    bottom: 20px;
+}
+
+.dock-icon {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.dock-icon:hover {
+    transform: translateY(-10px) scale(1.2);
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+}
+
+.dock-icon img {
+    width: 100%;
+    height: 100%;
+}
+
+.icon-menu {
+    position: fixed;
+    bottom: 80px; /* Acima do dock */
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 250px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.icon-menu.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.menu-item:hover {
+    background-color: #e0e0e0;
+}
+
+.menu-item img {
+    width: 30px;
+    height: 30px;
+}
+
+.menu-item span {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+}
+</style>
+<script>
+  
+
+</script>
+<script>
+  
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Seleciona todos os elementos que têm o atributo 'data-app'
+    const allApps = document.querySelectorAll('[data-app]');
+
+    // Adiciona um ouvinte de evento de clique a cada elemento selecionado
+    allApps.forEach(icon => {
+        icon.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Pega o ID do aplicativo do atributo 'data-app'
+            const appId = icon.getAttribute('data-app');
+
+            // Encontra a janela correspondente usando o ID
+            const appWindow = document.querySelector(`.window[data-window-id="${appId}"]`);
+
+            // Se a janela existir, mostra ela
+            if (appWindow) {
+                // Remove a classe 'active' de todas as janelas para ocultá-las
+                document.querySelectorAll('.window').forEach(window => {
+                    window.classList.remove('active');
+                });
+
+                // Adiciona a classe 'active' à janela clicada para exibi-la
+                appWindow.classList.add('active');
+            }
+        });
+    });
+
+    // Código para mostrar/esconder o menu de ícones
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const iconMenu = document.getElementById('iconMenu');
+
+    openMenuBtn.addEventListener('click', () => {
+        iconMenu.classList.toggle('visible');
+    });
+
+    // Opcional: Esconde o menu se clicar fora dele
+    document.addEventListener('click', (event) => {
+        if (!iconMenu.contains(event.target) && !openMenuBtn.contains(event.target)) {
+            iconMenu.classList.remove('visible');
+        }
+    });
+});
+</script>
+<script>
+  document.querySelectorAll('.desktop .icon').forEach(icon => {
+  let offsetX = 0, offsetY = 0, isDragging = false;
+
+  icon.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    // diferença entre clique e canto do elemento
+    offsetX = e.clientX - icon.offsetLeft;
+    offsetY = e.clientY - icon.offsetTop;
+    icon.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    const desktop = document.querySelector('.desktop');
+    const maxX = desktop.clientWidth - icon.offsetWidth;
+    const maxY = desktop.clientHeight - icon.offsetHeight;
+
+    // novas coordenadas limitadas à área da desktop
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+    x = Math.max(0, Math.min(x, maxX));
+    y = Math.max(0, Math.min(y, maxY));
+
+    icon.style.left = x + 'px';
+    icon.style.top  = y + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      icon.style.cursor = 'grab';
+    }
+  });
+});
+
+</script>
+<style>
+  /* ------------------------------
+     Janela principal
+  ------------------------------ */
+  #files {
+    width: 450px;
+    background: rgba(20,20,20,0.9); /* fundo escuro */
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
+    color: #e0e0e0;
+}
+
+/* ------------------------------
+   Header da janela
+------------------------------ */
+.window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(30,30,30,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    user-select: none;
+}
+
+.window-header span {
+    font-weight: 600;
+    font-size: 16px;
+    color: #fff;
+}
+
+.window-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.control-btn {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+.control-btn:hover { transform: scale(1.2); }
+.control-btn.close { background: #ff5f57; }
+.control-btn.min { background: #ffbd2e; }
+.control-btn.max { background: #28c840; }
+
+/* ------------------------------
+   Barra de Upload
+------------------------------ */
+.upload-bar {
+    display: flex;
+    padding: 12px;
+    gap: 8px;
+    background: rgba(30,30,30,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.upload-input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    font-size: 14px;
+    outline: none;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.upload-input:focus {
+    border-color: #007aff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+}
+
+.upload-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #007aff;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+.upload-btn:hover { background: #005ecb; transform: scale(1.05); }
+.upload-btn:active { transform: scale(0.97); }
+
+/* ------------------------------
+   Lista de arquivos
+------------------------------ */
+#file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(20,20,20,0.85);
+}
+
+.file {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    position: relative;
+    background: rgba(255,255,255,0.03);
+}
+.file:hover {
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.file img {
+    width: 28px;
+    height: 28px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.file-name {
+    flex: 1;
+    font-size: 15px;
+    color: #e0e0e0;
+    word-break: break-all;
+}
+
+.file-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.file-actions button {
+    border: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #fff;
+    transition: background 0.2s, transform 0.1s;
+}
+.file-actions button:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+/* ------------------------------
+   Scrollbar estilizado
+------------------------------ */
+#file-list::-webkit-scrollbar {
+    width: 8px;
+}
+#file-list::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+#file-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+#file-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+
+  /* ------------------------------
+     Mensagens de status
+  ------------------------------ */
+  .status-message {
+    text-align: center;
+    color: #888;
+    padding: 20px 0;
+    font-size: 14px;
+  }
+</style>
+
+<div id="files" style="width: 1000px;" class="window">
+  <div class="window-header">
+    <span>📁 Meus Arquivos</span>
+    <div class="window-controls">
+      <div class="control-btn close"></div>
+      <div class="control-btn min"></div>
+      <div class="control-btn max"></div>
+    </div>
+  </div>
+
+  <!-- Barra de ações: criar e upload -->
+  <div class="upload-bar">
+    <button id="create-btn" class="upload-btn">Criar</button>
+    <input type="file" id="upload-input" class="upload-input"/>
+    <button id="upload-btn" class="upload-btn">Upload</button>
+  </div>
+
+  <div id="file-list"></div>
+</div>
+
+
+
+
+<!-- Editor Window -->
+<div id="editor" class="window">
+  <div class="window-header">
+    <span>📝 Editor de Arquivos</span>
+    <div class="window-controls"><div class="control-btn close"></div><div class="control-btn min"></div><div class="control-btn max"></div></div>
+  </div>
+  <div id="file-editor">
+    <textarea id="editor-text"></textarea>
+    <div id="editor-controls"><button id="save-file">Salvar</button></div>
+  </div>
+</div>
+
+<!-- Terminal NEBULA -->
+<div id="terminal" class="window">
+  <div class="window-header">
+    <span class="title">💻 NEBULA Terminal</span>
+    <div class="window-controls">
+      <div class="control-btn close"></div>
+      <div class="control-btn min"></div>
+      <div class="control-btn max"></div>
+    </div>
+  </div>
+  <pre id="term-out"></pre>
+  <div class="input-line">
+    <span id="prompt">┌──(nebula㉿guest)-[~]<br>└─$</span>
+    <input id="term-input" autofocus autocomplete="off">
+  </div>
+</div>
+<div id="ia-modal" class="modal">
+        <div class="modal-backdrop"></div> <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="ia-icon-container">
+                <div class="ia-icon"></div>
+            </div>
+            <p class="ia-listening-text">Escutando...</p>
+            <p class="ia-name">AGENTE LX</p>
+        </div>
+    </div>
+    <script>
+      // === Variáveis e Constantes ===
+const modal = document.getElementById('ia-modal');
+const closeButton = document.querySelector('.close-button');
+const body = document.body;
+const iaContainer = document.querySelector('.ia-container'); // Assumindo que você tem um contêiner para a IA
+const iaInput = document.getElementById('ia-input'); // Assumindo um campo de texto para mostrar a transcrição
+const SPEAKING_THRESHOLD = 50; // Limiar para detectar fala (ajuste conforme necessário)
+const MIN_SPEAKING_DURATION = 1000; // Tempo mínimo para "ouvindo"
+let audioContext, analyser, microphone, dataArray;
+let recognition;
+let isThinking = false;
+let isSpeaking = false;
+let isListening = false;
+let speakingTimer;
+
+// === Funções de Animação e Estado da IA ===
+function setIAState(state) {
+    if (iaContainer) {
+        iaContainer.className = `ia-container ${state}`;
+    }
+}
+
+// === Funções para o Modal ===
+function openModal() {
+    modal.classList.add('show');
+    body.classList.add('blurred');
+    // Inicia a IA quando o modal é aberto
+    initAudio();
+}
+
+function closeModal() {
+    modal.classList.remove('show');
+    body.classList.remove('blurred');
+    // Para o reconhecimento de voz quando o modal é fechado
+    if (recognition) {
+        recognition.stop();
+    }
+    setIAState('idle');
+}
+
+// === Lógica de Áudio e Reconhecimento de Voz ===
+async function initAudio() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        setIAState('listening');
+        startAudioDetection();
+        startSpeechRecognition();
+    } catch (err) {
+        console.error('Erro ao acessar o microfone.', err);
+        setIAState('idle');
+        // Você pode adicionar uma notificação aqui, se tiver a função showNotification
+    }
+}
+
+function startAudioDetection() {
+    const detectAudio = () => {
+        requestAnimationFrame(detectAudio);
+        if (!analyser || isThinking || isSpeaking) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+        if (avgVolume > SPEAKING_THRESHOLD) {
+            if (!isListening) {
+                isListening = true;
+                setIAState('listening');
+                if (speakingTimer) clearTimeout(speakingTimer);
+            }
+        } else {
+            if (isListening) {
+                speakingTimer = setTimeout(() => {
+                    isListening = false;
+                    setIAState('idle');
+                }, MIN_SPEAKING_DURATION);
+            }
+        }
+    };
+    detectAudio();
+}
+
+function startSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.error("Seu navegador não suporta Speech Recognition.");
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => {
+        console.log('Reconhecimento de voz iniciado.');
+        setIAState('listening');
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join(' ')
+            .trim();
+        
+        if (transcript) {
+            if (iaInput) {
+                iaInput.value = transcript;
+            }
+            sendTextForAudio(transcript, true);
+        }
+    };
+
+    recognition.onerror = event => {
+        console.error("Erro no reconhecimento de voz:", event.error);
+        setIAState('idle');
+    };
+
+    recognition.onend = () => {
+        if (!isThinking && !isSpeaking) {
+            // Reinicia o reconhecimento se a IA não estiver processando ou falando
+            recognition.start();
+            setIAState('listening');
+        }
+    };
+
+    recognition.start();
+}
+
+async function sendTextForAudio(text, isUserQuery = false) {
+    isThinking = true;
+    isListening = false;
+    if (iaInput) {
+        iaInput.classList.add('disabled');
+        iaInput.placeholder = isUserQuery ? 'Pensando...' : 'Lendo erro...';
+    }
+    setIAState('thinking');
+    if (recognition) {
+        recognition.stop();
+    }
+
+    try {
+        const response = await fetch('/process-audio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'redirect') {
+            window.location.href = data.redirect_url;
+            return;
+        }
+        
+        if (data.status === 'success') {
+            isThinking = false;
+            isSpeaking = true;
+            setIAState('speaking');
+            
+            const audio = new Audio(`/get-audio/${data.audio}`);
+            audio.onended = () => {
+                isSpeaking = false;
+                if (iaInput) {
+                    iaInput.classList.remove('disabled');
+                    iaInput.placeholder = 'Como posso ajudar hoje?';
+                }
+                setIAState('listening');
+                if (recognition) {
+                    recognition.start();
+                }
+            };
+            audio.play();
+            // Assumindo que você tem uma função logConsole
+            // if (isUserQuery && typeof logConsole === 'function') {
+            //     logConsole(`Agente LX: ${data.resposta}`, 'info');
+            // }
+        } else {
+            console.error('Erro ao gerar áudio:', data.message);
+            // if (isUserQuery && typeof showNotification === 'function') {
+            //     showNotification(`Erro: ${data.message}`, 'error');
+            // }
+        }
+    } catch (err) {
+        console.error('Erro ao enviar texto para o backend para áudio:', err.message);
+        // if (isUserQuery && typeof showNotification === 'function') {
+        //     showNotification(`Erro de conexão: ${err.message}`, 'error');
+        // }
+    } finally {
+        if (!isSpeaking) {
+            isThinking = false;
+            if (iaInput) {
+                iaInput.classList.remove('disabled');
+                iaInput.placeholder = 'Como posso ajudar hoje?';
+            }
+            setIAState('listening');
+            if (recognition) {
+                recognition.start();
+            }
+        }
+    }
+}
+
+// === Eventos do Modal ===
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'q' && event.ctrlKey) {
+        event.preventDefault();
+        openModal();
+    }
+});
+
+closeButton.addEventListener('click', closeModal);
+
+window.addEventListener('click', (event) => {
+    if (event.target.classList.contains('modal-backdrop')) {
+        closeModal();
+    }
+});
+    </script>
+  <style>
+     
+
+/* Efeito de blur no fundo */
+body.blurred > *:not(.modal) {
+    filter: blur(5px);
+    pointer-events: none; /* Impede interação com o conteúdo desfocado */
+    user-select: none;
+}
+
+.modal {
+    display: none; /* Oculta a modal por padrão */
+    position: fixed;
+    z-index: 1000; /* Garante que o modal esteja acima de tudo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex; /* Exibe a modal quando a classe 'show' é adicionada */
+}
+
+.modal-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro */
+    backdrop-filter: blur(8px); /* Efeito de blur no fundo */
+}
+
+.modal-content {
+    background-color: transparent; /* Conteúdo sem fundo para ver o blur */
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 1001; /* Garante que o conteúdo esteja acima do backdrop */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1002;
+}
+
+.close-button1:hover,
+.close-button:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+.ia-icon-container {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.ia-icon {
+    width: 80px;
+    height: 80px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M6 3v2H3v2h3v10H3v2h3v2h2v-2h8v2h2v-2h3v-2h-3V7h3V5h-3V3h-2v2H8V3H6zm2 4h8v10H8V7zM10 9h4v6h-4V9z"/></svg>'); /* Ícone de chip SVG */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    animation: pulse 1.5s infinite ease-in-out; /* Efeito de pulso para simular "escuta" */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.ia-listening-text {
+    color: #00ff00; /* Cor verde para o texto "Escutando..." */
+    font-size: 1.2em;
+    margin-bottom: 50px; /* Espaço para o nome da IA */
+}
+
+.ia-name {
+    color: #00ff00; /* Cor verde para "AGENTE LX" */
+    font-size: 1.5em;
+    font-weight: bold;
+    position: absolute; /* Posiciona o nome na parte inferior */
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+}
+    </style>
+<style>
+
+#term-out {
+  flex:1; margin:0; padding:12px; 
+  color:#0fdbd0; font-size:14px;
+  overflow-y:auto; white-space:pre-wrap;
+  text-shadow:0 0 8px #0fdbd0;
+}
+
+.input-line {
+  display:flex; align-items:center;
+  padding:8px; border-top:1px solid #1f2633;
+}
+#prompt {
+  color:#0fdbd0;
+  margin-right:8px;
+  text-shadow:0 0 6px #0fdbd0;
+}
+#term-input {
+  flex:1; background:transparent;
+  border:none; outline:none;
+  color:#0fdbd0; font-size:14px;
+  font-family:monospace;
+  caret-color:#0fdbd0;
+}
+</style>
+
+<script>
+const termOut = document.getElementById('term-out');
+const termInput = document.getElementById('term-input');
+
+function printOutput(text) {
+  termOut.textContent += `\n${text}`;
+  termOut.scrollTop = termOut.scrollHeight;
+}
+
+// Histórico de comandos
+let history = [];
+let histIndex = 0;
+
+// Nova ASCII art
+const ascii = `
+ ________  ________  ___  ___  ________  ________  _______      
+|\\   ____\\|\\   __  \\|\\  \\|\\  \\|\\   __  \\|\\   __  \\|\\  ___ \\     
+\\ \\  \\___|\\ \\  \\|\\  \\ \\  \\\\\\  \\ \\  \\|\\  \\ \\  \\|\\  \\ \\   __/|    
+ \\ \\_____  \\ \\  \\\\\\  \\ \\  \\\\\\  \\ \\   __  \\ \\   _  _\\ \\  \\_|/__  
+  \\|____|\\  \\ \\  \\\\\\  \\ \\  \\\\\\  \\ \\  \\ \\  \\ \\  \\\\  \\\\ \\  \\_|\\ \\ 
+    ____\\_\\  \\ \\_____  \\ \\_______\\ \\__\\ \\__\\ \\__\\\\ _\\\\ \\_______\\
+   |\\_________\\|___| \\__\\|_______|\\|__|\\|__|\\|__|\\|__|\\|_______|
+   \\|_________|     \\|__|                                       
+                                                                
+`;
+
+let i = 0;
+function typeAscii() {
+  if (i < ascii.length) {
+    termOut.textContent += ascii[i];
+    i++;
+    setTimeout(typeAscii, 3);
+  } else {
+    printOutput("\n┌──(nebula㉿guest)-[~]\n└─$ digite 'help' para ver comandos\n");
+  }
+}
+typeAscii();
+
+const commands = {
+  help: "Comandos: help, clear, whoami, uname, ls, pwd, date, echo, neofetch, exit",
+  clear: () => { termOut.textContent = ""; },
+  whoami: "Square",
+  uname: "Square 6.6.15 x86_64",
+  ls: "Desktop  Documents  Downloads  Music  Pictures  Videos",
+  pwd: "/home/nebula",
+  date: () => new Date().toString(),
+  echo: (args) => args.join(" "),
+  neofetch: `
+OS: Square v1.0 x86_64
+Host: VM
+Kernel: 6.6.15-amd64
+CPU: Intel i7 (8) @ 3.20GHz
+Memory: 8192MiB
+`
+};
+
+termInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const input = termInput.value.trim();
+    if (!input) return;
+
+    termOut.textContent += `\n$ ${input}`;
+    history.push(input);
+    histIndex = history.length;
+
+    const [cmd, ...args] = input.split(" ");
+    if (commands[cmd]) {
+      const output = typeof commands[cmd] === "function" ? commands[cmd](args) : commands[cmd];
+      if (output !== undefined) printOutput(output);
+    } else {
+      printOutput("Comando não reconhecido. Digite 'help'.");
+    }
+    termInput.value = '';
+  }
+
+  // Histórico ↑ ↓
+  if (e.key === 'ArrowUp') {
+    if (histIndex > 0) histIndex--;
+    termInput.value = history[histIndex] || "";
+  }
+  if (e.key === 'ArrowDown') {
+    if (histIndex < history.length - 1) histIndex++;
+    termInput.value = history[histIndex] || "";
+  }
+});
+</script>
+
+
+<div id="console-container">
+        <div id="console-header">
+            <span>Console</span>
+            <button id="console-close-btn">&times;</button>
+        </div>
+        <div id="console-output"></div>
+        <div id="console-input-area">
+            <input type="text" id="console-input" placeholder="Digite um comando...">
+        </div>
+    </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const consoleContainer = document.getElementById('console-container');
+    const consoleCloseBtn = document.getElementById('console-close-btn');
+    const consoleInput = document.getElementById('console-input');
+    const consoleOutput = document.getElementById('console-output');
+    const consoleHeader = document.getElementById('console-header');
+
+    let isConsoleVisible = false;
+    let isDragging = false;
+    let startY, startHeight;
+
+    // --- Funções de Controle do Console ---
+
+    function toggleConsole() {
+        isConsoleVisible = !isConsoleVisible;
+        if (isConsoleVisible) {
+            consoleContainer.style.display = 'flex';
+            // Adiciona um pequeno delay para a transição funcionar
+            setTimeout(() => {
+                consoleContainer.style.height = '400px'; // Altura padrão ao abrir
+            }, 10);
+            consoleInput.focus();
+        } else {
+            consoleContainer.style.height = '0px'; // Fecha animado
+            setTimeout(() => {
+                consoleContainer.style.display = 'none';
+            }, 300); // Tempo da transição CSS
+        }
+    }
+
+    function closeConsole() {
+        isConsoleVisible = false;
+        consoleContainer.style.height = '0px';
+        setTimeout(() => {
+            consoleContainer.style.display = 'none';
+        }, 300);
+    }
+
+    function addLog(message, type = 'info') {
+        const logEntry = document.createElement('div');
+        logEntry.classList.add('log-entry');
+        if (type === 'error') {
+            logEntry.classList.add('error');
+        } else if (type === 'warn') {
+            logEntry.classList.add('warn');
+        }
+        logEntry.textContent = message;
+        consoleOutput.appendChild(logEntry);
+        // Rola para o final automaticamente
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    function clearConsole() {
+        consoleOutput.innerHTML = '';
+    }
+
+    // --- Manipuladores de Eventos ---
+
+    // Abrir/Fechar com F8
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'F8') {
+            event.preventDefault(); // Previne a ação padrão do F8
+            toggleConsole();
+        }
+    });
+
+    // Fechar botão
+    consoleCloseBtn.addEventListener('click', closeConsole);
+
+    // Enviar comando
+    consoleInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const command = consoleInput.value.trim();
+            if (command) {
+                addLog(`> ${command}`); // Mostra o comando digitado
+                processCommand(command);
+                consoleInput.value = ''; // Limpa o input
+            }
+        }
+    });
+
+    // --- Processamento de Comandos ---
+
+    function processCommand(command) {
+        // Comando para limpar o console
+        if (command.toLowerCase() === 'clear' || command.toLowerCase() === 'cls') {
+            clearConsole();
+            return;
+        }
+
+        // Comando para fechar o console
+        if (command.toLowerCase() === 'exit') {
+            closeConsole();
+            return;
+        }
+
+        // Tenta executar como HTML/CSS (simplificado)
+        if (command.startsWith('html:') || command.startsWith('css:')) {
+            const [type, ...rest] = command.split(':');
+            const cssOrHtmlContent = rest.join(':').trim();
+
+            if (type === 'html') {
+                try {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cssOrHtmlContent;
+                    consoleOutput.appendChild(tempDiv);
+                    addLog('HTML aplicado.', 'info');
+                } catch (e) {
+                    addLog(`Erro ao aplicar HTML: ${e.message}`, 'error');
+                }
+            } else if (type === 'css') {
+                try {
+                    const styleElement = document.createElement('style');
+                    styleElement.textContent = cssOrHtmlContent;
+                    document.head.appendChild(styleElement);
+                    addLog('CSS aplicado.', 'info');
+                } catch (e) {
+                    addLog(`Erro ao aplicar CSS: ${e.message}`, 'error');
+                }
+            }
+            return;
+        }
+
+        // Enviar comando para o Flask (usando Fetch API)
+        fetch('/run_command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: command }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.output) {
+                addLog(`> ${data.output}`);
+            }
+            if (data.error) {
+                addLog(`Erro do servidor: ${data.error}`, 'error');
+            }
+        })
+        .catch(error => {
+            addLog(`Falha ao enviar comando para o servidor: ${error.message}`, 'error');
+        });
+    }
+
+    // --- Funcionalidade de Redimensionamento ---
+    let isResizing = false;
+    let startY_resize, startHeight_resize;
+
+    consoleHeader.addEventListener('mousedown', (e) => {
+        // Permite arrastar o console
+        isDragging = true;
+        startY = e.clientY;
+        startHeight = parseInt(window.getComputedStyle(consoleContainer).height, 10);
+        consoleContainer.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none'; // Previne seleção de texto ao arrastar
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const deltaY = e.clientY - startY;
+            const newHeight = startHeight - deltaY;
+            // Limita a altura mínima e máxima
+            const minHeight = 100; // Altura mínima em pixels
+            const maxHeight = window.innerHeight * 0.9; // 90% da altura da tela
+            const finalHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
+            consoleContainer.style.height = `${finalHeight}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            consoleContainer.style.cursor = 'grab';
+            document.body.style.userSelect = ''; // Restaura seleção de texto
+        }
+    });
+
+    // --- Logs de Inicialização ---
+    addLog('Console iniciado. Pressione F8 para mostrar/esconder.');
+    addLog('Comandos de servidor serão enviados para o servidor, para comandos na maquina use o terminal.');
+});
+</script>
+<style>
+  
+
+#console-container {
+    display: none; /* Inicia oculto */
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0; /* Inicia com altura zero para a transição */
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Courier New', Courier, monospace;
+    border-top: 1px solid #333;
+    transition: height 0.3s ease-in-out;
+    z-index: 1000;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* Garante que o conteúdo não vaze durante a transição */
+}
+
+#console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: #2b2b2b;
+    border-bottom: 1px solid #444;
+    cursor: grab;
+}
+
+#console-header span {
+    font-weight: bold;
+}
+
+#console-close-btn {
+    background: none;
+    border: none;
+    color: #d4d4d4;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+#console-close-btn:hover {
+    color: #fff;
+}
+
+#console-output {
+    flex-grow: 1;
+    padding: 10px 15px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+#console-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+#console-output::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+}
+
+#console-output::-webkit-scrollbar-track {
+    background-color: #2b2b2b;
+}
+
+.log-entry {
+    margin-bottom: 5px;
+}
+
+.log-entry.error {
+    color: #ff5c5c;
+}
+
+.log-entry.warn {
+    color: #ffe066;
+}
+
+#console-input-area {
+    padding: 10px 15px;
+    border-top: 1px solid #444;
+    background-color: #2b2b2b;
+}
+
+#console-input {
+    width: 100%;
+    background-color: #3e3e3e;
+    border: 1px solid #555;
+    color: #d4d4d4;
+    padding: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    border-radius: 4px;
+    outline: none;
+}
+
+#console-input:focus {
+    border-color: #007acc;
+}
+</style>
+<script>
+  const topo = document.getElementById('topo');
+  const notificacoes = document.getElementById('notificacoes');
+  let mouseSegurando = false;
+
+  topo.addEventListener('mousedown', () => {
+    mouseSegurando = true;
+    notificacoes.classList.add('show'); // mostra
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (mouseSegurando) {
+      mouseSegurando = false;
+      notificacoes.classList.remove('show'); // esconde
+    }
+  });
+</script>
+
+<script>
+  // Bloqueia seleção
+  document.addEventListener('selectstart', (e) => {
+    e.preventDefault();
+  });
+
+  // Bloqueia clique direito
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  // Bloqueia atalhos como Ctrl+C, Ctrl+U, Ctrl+S etc.
+  document.addEventListener('keydown', (e) => {
+    if (
+      (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's' || e.key === 'a')) ||
+      (e.metaKey && (e.key === 'c' || e.key === 'u' || e.key === 's' || e.key === 'a'))
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
+
+<!-- Mail -->
+<div id="mail" class="window">
+  <div class="window-header">
+    <span>📧 Mail</span>
+    <div class="window-controls"><div class="control-btn close"></div><div class="control-btn min"></div><div class="control-btn max"></div></div>
+  </div>
+  <iframe src="https://bit.ly/bytemail1"></iframe>
+</div>
+
+<!-- Calculadora -->
+<div id="calc" class="window">
+  <div class="window-header">
+    <span>🧮 Calculadora</span>
+    <div class="window-controls"><div class="control-btn close"></div><div class="control-btn min"></div><div class="control-btn max"></div></div>
+  </div>
+  <iframe src="https://calculadora.cc/"></iframe>
+</div>
+
+<!-- Rede -->
+<div id="rede" class="window">
+  <div class="window-header">
+    <span>🌐 Rede</span>
+    <div class="window-controls"><div class="control-btn close"></div><div class="control-btn min"></div><div class="control-btn max"></div></div>
+  </div>
+  <iframe src="https://fast.com"></iframe>
+</div>
+
+<!-- Square Intelligence -->
+<div id="intelligence" class="window">
+  <div class="window-header">
+    <span>🧠 Square Intelligence</span>
+    <div class="window-controls"><div class="control-btn close"></div><div class="control-btn min"></div><div class="control-btn max"></div></div>
+  </div>
+  <iframe src="https://istanbul-discounts-tiffany-ob.trycloudflare.com/"></iframe>
+</div>
+
+<!-- Appearance -->
+<!-- Configurações do Sistema -->
+<div id="appearance" class="window" style="width:500px; height:500px; top:50%; left:50%; transform:translate(-50%, -50%);">
+  <div class="window-header">
+    <span>⚙️ Configurações do Sistema</span>
+    <div class="window-controls">
+      <div class="control-btn close"></div>
+      <div class="control-btn min"></div>
+      <div class="control-btn max"></div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; height:100%; overflow:hidden; font-family: 'San Francisco', 'Helvetica Neue', sans-serif;">
+
+    <!-- Tabs -->
+    <div style="display:flex; border-bottom:1px solid #444; background:#1e1e1e;">
+      <button class="tab-btn" data-tab="theme" style="flex:1; padding:12px; border:none; background:none; color:#ccc; cursor:pointer;">Wallpaper</button>
+      <button class="tab-btn" data-tab="user" style="flex:1; padding:12px; border:none; background:none; color:#ccc; cursor:pointer;">Usuário</button>
+      <button class="tab-btn" data-tab="about" style="flex:1; padding:12px; border:none; background:none; color:#ccc; cursor:pointer;">Sobre</button>
+      <button class="tab-btn" data-tab="lang" style="flex:1; padding:12px; border:none; background:none; color:#ccc; cursor:pointer;">SquareLang</button>
+    </div>
+
+    <div style="flex:1; overflow:auto; padding:20px; color:#e0e0e0; display:flex; flex-direction:column; gap:20px;">
+
+
+      <!-- Tema / Wallpaper -->
+      <div class="tab-content" id="theme">
+        <h3>Wallpaper</h3>
+        <p style="color:#aaa; font-size:14px;">Escolha um wallpaper para o sistema:</p>
+        <label>URL da imagem: <input type="text" id="wallpaper-url" placeholder="https://..." style="width:100%; padding:6px; border-radius:6px; border:1px solid #555; background:#222; color:#eee;"></label>
+        <label>Ou faça upload: <input type="file" id="wallpaper-upload" style="width:100%; padding:6px; border-radius:6px; border:1px solid #555; background:#222; color:#eee;"></label>
+        <button id="apply-wallpaper" style="margin-top:10px; padding:8px 16px; border:none; border-radius:8px; background:#007BFF; color:white; cursor:pointer;">Aplicar Wallpaper</button>
+        <div id="wallpaper-preview" style="margin-top:10px; width:100%; height:200px; background:#111; border:1px solid #444; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+          <span style="color:#666;">Pré-visualização</span>
+        </div>
+      </div>
+
+      <!-- Usuário -->
+      <div class="tab-content" id="user" style="display:none;">
+        <h3>Usuário</h3>
+        <label>Nome: {{ m.user_nome }}</label></Br>
+        
+        <button id="save-user" style="margin-top:10px; padding:8px 16px; border:none; border-radius:8px; background:#28a745; color:white; cursor:pointer;">Salvar Usuário</button>
+      </div>
+
+      <!-- Sobre -->
+      <div class="tab-content" id="about" style="display:none;">
+        <h3>Sobre</h3>
+        <p>SquareOs v1.1</p>
+        <p>Desenvolvido por: Miguel Viana</p>
+        <p>Email de suporte: <a href="mailto:suporte@nebulaos.local" style="color:#1E90FF;">suporte@nebulaos.local</a></p>
+        <p>Site oficial: <a href="https://nebulaos.local" target="_blank" style="color:#1E90FF;">nebulaos.local</a></p>
+      </div>
+      <div class="tab-content" id="lang" style="display:none;">
+        <h3>LINEAX</h3>
+        <p>LINEAX</p>
+        <p>Desenvolvido por Square Systens</p>
+        <p>Email de suporte: <a href="mailto:suporte@Square.Square" style="color:#1E90FF;">suporte@nebulaos.local</a></p>
+        <p>Site oficial: <a href="https://nebulaos.local" target="_blank" style="color:#1E90FF;">nebulaos.local</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  /* ===== Reset ===== */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    height: 100vh;
+    background: linear-gradient(120deg, #1d1d1d, #2a2a2a);
+    font-family: sans-serif;
+  }
+
+  /* ===== Dock Container ===== */
+  .widht {
+    position: fixed;          /* fixa na tela */
+    top: 30px;                /* distância do topo */
+    right: 30px;              /* distância da direita */
+    display: grid;            /* grade de 2 ícones por coluna */
+    grid-template-columns: repeat(2, 70px);
+    grid-auto-rows: 70px;
+    margin-top: 50px;
+    gap: 20px;                /* espaço entre ícones */
+    padding: 20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px) saturate(140%);
+    -webkit-backdrop-filter: blur(15px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+  .widht:hover{
+  cursor: pointer;
+  }
+  /* ===== Ícones ===== */
+  .widht img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    user-select: none;
+  }
+
+  .widht img:hover {
+    transform: scale(1.2) translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  }
+
+  /* Animação de entrada */
+  .widht img {
+    opacity: 0;
+    animation: fadeIn 0.8s forwards;
+  }
+  .widht img:nth-child(1){ animation-delay: 0.1s;}
+  .widht img:nth-child(2){ animation-delay: 0.2s;}
+  .widht img:nth-child(3){ animation-delay: 0.3s;}
+  .widht img:nth-child(4){ animation-delay: 0.4s;}
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  /* ===== Responsividade ===== */
+  @media (max-width: 600px) {
+    .widht {
+      grid-template-columns: repeat(2, 60px);
+      grid-auto-rows: 60px;
+      gap: 15px;
+      padding: 15px;
+      top: 20px;
+      right: 20px;
+    }
+    .widht img {
+      width: 50px;
+      height: 50px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+
+ <div class="quick-apps-container">
+  <img src="https://i.postimg.cc/dtB5mRdc/Gemini-Generated-Image-asky0uasky0uasky-1-removebg-preview-1-removebg-preview.png" alt="Arquivos" data-app="files" />
+  <img src="https://i.postimg.cc/nLWr4WGP/logonavegador-removebg-preview.png" alt="Terminal" data-app="terminal" />
+  <img src="https://i.postimg.cc/d1T149Wt/logoia-removebg-preview.png" alt="Square Intelligence" data-app="intelligence" />
+  <img src="https://i.postimg.cc/Dw2TjzHt/image-removebg-preview-1.png" alt="Calculadora" data-app="calc" />
+</div>
+
+
+
+<style>
+.quick-apps-container {
+  position: fixed;
+  top: 20%;
+  right: 30px;
+  transform: translateY(-50%);
+  width: 250px;
+  height: 250px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  padding: 20px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+
+.quick-apps-container:hover {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.quick-apps-container img {
+  width: 90px;
+  height: 90px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: transform 0.25s cubic-bezier(.25,.8,.25,1), box-shadow 0.25s, filter 0.25s;
+}
+
+.quick-apps-container img:hover {
+  transform: translateY(-8px) scale(1.25) rotate(-2deg);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+  filter: brightness(1.3);
+}
+</style>
+
+<script>
+const quickApps = document.querySelectorAll('.quick-apps-container img');
+const desktopApps = document.querySelectorAll('.desktop .icon');
+
+function openApp(appName) {
+  const app = Array.from(desktopApps).find(d => d.dataset.app === appName);
+  if(app) {
+    alert(`Abrindo o app: ${appName}`);
+    // Aqui você pode chamar a função real que abre a janela do app
+    // ex: abrirModal(appName);
+  }
+}
+
+quickApps.forEach(app => {
+  app.addEventListener('click', () => {
+    const appName = app.dataset.app;
+    openApp(appName);
+  });
+});
+
+desktopApps.forEach(app => {
+  app.addEventListener('click', () => {
+    const appName = app.dataset.app;
+    openApp(appName);
+  });
+});
+</script>
+
+
+
+<script>
+
+const tabs=document.querySelectorAll(".tab-btn");
+const contents=document.querySelectorAll(".tab-content");
+tabs.forEach(tab=>{
+  tab.onclick=()=>{
+    contents.forEach(c=>c.style.display="none");
+    document.getElementById(tab.dataset.tab).style.display="block";
+    tabs.forEach(t=>t.style.color="#ccc");
+    tab.style.color="#fff";
+  };
+});
+
+/* Wallpaper */
+const wallpaperPreview = document.getElementById('wallpaper-preview');
+  const wallpaperUrlInput = document.getElementById('wallpaper-url');
+  const wallpaperUpload = document.getElementById('wallpaper-upload');
+  const applyBtn = document.getElementById('apply-wallpaper');
+
+  // Aplica o wallpaper no body e atualiza preview
+  function setWallpaper(src) {
+    document.body.style.backgroundImage = `url(${src})`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
+
+    wallpaperPreview.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+    img.style.margin = '0 auto';
+    wallpaperPreview.appendChild(img);
+  }
+
+  // Salva wallpaper no localStorage com validade de 1 ano
+  function saveWallpaper(url) {
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    const wallpaperData = { url, expires: expires.getTime() };
+    localStorage.setItem('wallpaper', JSON.stringify(wallpaperData));
+  }
+
+  // Carrega wallpaper do localStorage se existir e não expirou
+  function loadWallpaper() {
+    const data = localStorage.getItem('wallpaper');
+    if (!data) return;
+    try {
+      const { url, expires } = JSON.parse(data);
+      const now = new Date().getTime();
+      if (now < expires) setWallpaper(url);
+      else localStorage.removeItem('wallpaper');
+    } catch (e) {
+      console.error('Erro ao carregar wallpaper', e);
+    }
+  }
+
+  // Atualiza preview ao digitar URL
+  wallpaperUrlInput.addEventListener('input', () => {
+    wallpaperPreview.innerHTML = '';
+    if (wallpaperUrlInput.value.trim() === '') return;
+    const img = document.createElement('img');
+    img.src = wallpaperUrlInput.value.trim();
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+    img.style.margin = '0 auto';
+    wallpaperPreview.appendChild(img);
+  });
+
+  // Aplica wallpaper ao clicar no botão
+  applyBtn.addEventListener('click', () => {
+    if (wallpaperUpload.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        setWallpaper(e.target.result);
+        saveWallpaper(e.target.result);
+      };
+      reader.readAsDataURL(wallpaperUpload.files[0]);
+    } else if (wallpaperUrlInput.value.trim() !== '') {
+      const url = wallpaperUrlInput.value.trim();
+      setWallpaper(url);
+      saveWallpaper(url);
+    } else {
+      alert("Escolha um wallpaper ou insira uma URL.");
+    }
+  });
+
+  // Carrega wallpaper ao abrir a página
+  window.addEventListener('DOMContentLoaded', loadWallpaper);
+
+/* Usuário */
+document.getElementById('save-user').onclick=()=>{
+  const name=document.getElementById('user-name').value.trim();
+  const email=document.getElementById('user-email').value.trim();
+  if(!name||!email){ alert("Preencha nome e email!"); return; }
+  alert(`Usuário atualizado: ${name}`);
+};
+</script>
+
+<script>
+  // === Bloqueio inicial de 4 segundos ===
+let systemReady = false;
+setTimeout(() => {
+  systemReady = true;
+}, 4000);
+
+// === Inicializa janelas escondidas ===
+document.querySelectorAll('.window').forEach(win => {
+  win.style.display = 'none'; // força todas escondidas no início
+  win.classList.remove('active');
+});
+
+// === Função para abrir apps ===
+function openApp(appId) {
+  if (!systemReady) {
+    console.log(`Sistema inicializando. "${appId}" bloqueado por 4s.`);
+    return; // não abre nada antes de 4s
+  }
+
+  const appWindow = document.querySelector(`.window[data-window-id="${appId}"]`);
+  if (!appWindow) return;
+
+  // traz a janela para frente
+  appWindow.style.display = 'flex';
+  appWindow.style.zIndex = Date.now();
+  appWindow.classList.add('active');
+}
+
+// === Clique nos ícones ===
+document.querySelectorAll('[data-app]').forEach(icon => {
+  icon.addEventListener('click', () => {
+    const appId = icon.getAttribute('data-app');
+    openApp(appId);
+  });
+});
+
+</script>
+<!-- Context Menu -->
+<!-- Menu de contexto -->
+<div id="context-menu">
+  <ul>
+    <li id="refresh">Atualizar</li>
+    <li id="create-btn">Novo Arquivo</li>
+    <li data-app="appearance" id="settings">Configurações</li>
+    <li id="about">Sobre</li>
+  </ul>
+</div>
+<script>
+  
+</script>
+<script>
+/* Clock */
+setInterval(()=>{
+  document.getElementById("clock").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+},1000);
+
+/* Open apps */
+document.querySelectorAll(".icon,.dock-icon").forEach(el=>el.onclick=()=>openApp(el.dataset.app));
+function openApp(app){
+  const w=document.getElementById(app);
+  if(w){ w.style.display="flex"; w.style.zIndex=Date.now(); 
+    if(app==='files') loadFiles();
+  }
+}
+
+/* Window controls */
+document.querySelectorAll(".window").forEach(win => {
+  const header = win.querySelector(".window-header");
+  const closeBtn = win.querySelector(".control-btn.close");
+  const minBtn = win.querySelector(".control-btn.min");
+  const maxBtn = win.querySelector(".control-btn.max");
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+  let isMaximized = false;
+  let prev = { width: 0, height: 0, left: 0, top: 0 };
+
+  // ===== Botões =====
+  closeBtn.addEventListener("click", () => win.style.display = "none");
+  minBtn.addEventListener("click", () => win.style.display = "none"); // ou apenas reduzir a altura
+  maxBtn.addEventListener("click", () => {
+    if (!isMaximized) {
+      // Salva estado anterior
+      prev.width = win.offsetWidth;
+      prev.height = win.offsetHeight;
+      prev.left = win.offsetLeft;
+      prev.top = win.offsetTop;
+      // Maximiza
+      win.style.left = "0px";
+      win.style.top = "0px";
+      win.style.width = "100vw";
+      win.style.height = "100vh";
+    } else {
+      // Restaura
+      win.style.left = prev.left + "px";
+      win.style.top = prev.top + "px";
+      win.style.width = prev.width + "px";
+      win.style.height = prev.height + "px";
+    }
+    isMaximized = !isMaximized;
+  });
+
+  // ===== Drag =====
+  header.addEventListener("mousedown", e => {
+    if (isMaximized) return; // não mover quando maximizado
+    isDragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    win.style.zIndex = Date.now(); 
+    document.body.style.userSelect = "none"; 
+  });
+
+  document.addEventListener("mousemove", e => {
+    if (!isDragging) return;
+    win.style.left = e.clientX - offsetX + "px";
+    win.style.top = e.clientY - offsetY + "px";
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    document.body.style.userSelect = "auto"; 
+  });
+});
+/* Files & Editor */
+const fileList = document.getElementById('file-list');
+const editorWindow = document.getElementById('editor'); // deve existir na página
+const editorText = document.getElementById('editor-text');
+const saveBtn = document.getElementById('save-file');
+const uploadBtn = document.getElementById('upload-btn');
+const uploadInput = document.getElementById('upload-input');
+const createBtn = document.getElementById('create-btn'); // botão "Criar Arquivo"
+let currentFile = null;
+const FILE_CHAR_LIMIT = 1000;
+
+// ----------------------
+// Abrir editor
+// ----------------------
+function openEditor(fileName, content = '') {
+  if (!editorWindow || !editorText) return console.warn("Editor não definido");
+
+  currentFile = fileName;
+  editorText.value = content;
+  editorWindow.style.display = 'flex'; // exibe a janela do editor
+}
+
+// ----------------------
+// Carregar arquivos do backend
+// ----------------------
+async function loadFiles() {
+  if (!fileList) return console.error('fileList não encontrado');
+
+  fileList.innerHTML = '<p style="color:#888;text-align:center;">Carregando...</p>';
+
+  try {
+    const res = await fetch('/files/list');
+    if (!res.ok) throw new Error('Erro na resposta do servidor');
+
+    const data = await res.json(); // { status: "success", files: [...] }
+
+    if (data.status !== "success") {
+      throw new Error(data.error || "Erro ao listar arquivos");
+    }
+
+    const files = data.files;
+    fileList.innerHTML = '';
+
+    if (!files || !files.length) {
+      fileList.innerHTML = '<p style="color:#888;text-align:center;">Nenhum arquivo encontrado</p>';
+      return;
+    }
+
+    files.forEach(file => {
+      const div = document.createElement('div');
+      div.className = 'file';
+      div.innerHTML = `
+        <img src="https://img.icons8.com/fluency/24/file.png" alt="file icon"/>
+        <span class="file-name">${file}</span>
+        <div class="file-actions">
+          <button class="download-btn">Baixar</button>
+          <button class="delete-btn">Excluir</button>
+        </div>
+      `;
+
+      // Clicar no arquivo abre editor
+      div.addEventListener('click', async () => {
+        try {
+          const res = await fetch(`/files/content/${encodeURIComponent(file)}`);
+          if (!res.ok) throw new Error("Erro ao abrir arquivo");
+          const text = await res.text();
+          openEditor(file, text);
+        } catch (err) {
+          alert('Erro ao abrir arquivo: ' + err.message);
+        }
+      });
+
+      // Botão Baixar
+      div.querySelector('.download-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        downloadFile(file);
+      });
+
+      // Botão Excluir
+      div.querySelector('.delete-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        deleteFile(file);
+      });
+
+      fileList.appendChild(div);
+    });
+  } catch (e) {
+    console.error(e);
+    fileList.innerHTML = '<p style="color:#f88;text-align:center;">Erro ao carregar arquivos</p>';
+  }
+}
+
+// ----------------------
+// Upload de arquivo
+// ----------------------
+uploadBtn.onclick = async () => {
+  const file = uploadInput.files[0];
+  if (!file) return alert("Selecione um arquivo!");
+
+  const allowed = ['png','jpg','jpeg','gif','txt','pdf','md','json','py','js','html','css'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) return alert("Arquivo não permitido!");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("/files/upload", { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      alert(`Upload concluído! Arquivo: ${data.filename}`);
+      uploadInput.value = '';
+      loadFiles(); // Atualiza lista
+    } else {
+      alert("Erro: " + (data.error || "Desconhecido"));
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erro no upload");
+  }
+};
+
+// ----------------------
+// Criar novo arquivo
+// ----------------------
+createBtn.onclick = async () => {
+  const filename = prompt("Digite o nome do arquivo (ex: novo.txt) coloque a extensão do arquivo");
+  if (!filename) return;
+
+  try {
+    const res = await fetch("/files/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename })
+    });
+    const data = await res.json();
+
+    if (data.status === "success") {
+      alert(`Arquivo "${data.filename}" criado com sucesso!`);
+      loadFiles();
+    } else {
+      alert("Erro: " + (data.error || "Desconhecido"));
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao criar arquivo");
+  }
+};
+
+// ----------------------
+// Download de arquivo
+// ----------------------
+function downloadFile(fileName) {
+  window.location.href = `/files/download/${encodeURIComponent(fileName)}`;
+}
+
+// ----------------------
+// Excluir arquivo
+// ----------------------
+function deleteFile(fileName) {
+  if (!confirm(`Deseja realmente excluir "${fileName}"?`)) return;
+
+  fetch(`/files/delete/${encodeURIComponent(fileName)}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') loadFiles();
+      else alert('Erro ao excluir arquivo: ' + (data.error || 'Desconhecido'));
+    })
+    .catch(err => alert('Erro ao excluir arquivo'));
+}
+
+// ----------------------
+// Salvar arquivo no editor
+// ----------------------
+if (saveBtn) {
+  saveBtn.addEventListener('click', async () => {
+    if (!currentFile) return alert('Nenhum arquivo aberto para salvar.');
+    const content = editorText.value;
+    if (content.length > FILE_CHAR_LIMIT) return alert(`Arquivo excede o limite de ${FILE_CHAR_LIMIT} caracteres.`);
+
+    try {
+      const res = await fetch(`/files/save/${encodeURIComponent(currentFile)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        alert(`Arquivo "${currentFile}" salvo com sucesso!`);
+        loadFiles();
+      } else {
+        alert("Erro ao salvar: " + (data.error || "Desconhecido"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar arquivo");
+    }
+  });
+}
+
+// ----------------------
+// Inicializa lista ao carregar
+// ----------------------
+window.addEventListener('DOMContentLoaded', loadFiles);
+
+
+/* Appearance */
+document.getElementById('apply-theme').onclick=()=>{
+  document.body.style.background=document.getElementById('bg-color').value;
+  document.body.style.color=document.getElementById('text-color').value;
+  document.querySelector('.dock').style.background=document.getElementById('dock-color').value;
+};
+
+</script>
+<style>
+        :root {
+            --bg-dark: #121212;
+            --card-dark: #1e1e1e;
+            --text-light: #e0e0e0;
+            --primary-blue: #007bff;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --warning-orange: #ffc107;
+            --border-color: #333;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --warning-bg: rgba(0, 0, 0, 0.85);
+            --warning-border: #555;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Estilo do Overlay de Aviso */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--warning-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .warning-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .warning-content {
+            background-color: var(--card-dark);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            text-align: center;
+            max-width: 500px;
+            border: 1px solid var(--warning-border);
+        }
+
+        .icon-container {
+            margin-bottom: 20px;
+        }
+
+        .feather-maximize {
+            width: 60px;
+            height: 60px;
+            stroke: var(--primary-blue);
+        }
+
+        .warning-text {
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+            color: var(--text-light);
+        }
+
+        .warning-text strong {
+            color: var(--warning-orange);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fullscreen-warning" class="warning-overlay">
+        <div class="warning-content">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-maximize">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m0 0v3m0-3h3m-3 0v3m0 0v3m0 0v3a2 2 0 0 0 2 2h3m0 0h3m0 0h3a2 2 0 0 0 2-2v-3m0 0v-3m0 3h-3m0 0v3m0 0v3m0 0h-3"></path>
+                    <path d="M16 3h3a2 2 0 0 1 2 2v3m0 0v3m0-3h-3m0 0v3m0 0v3m0 0v3a2 2 0 0 1-2 2h-3m0 0h-3m0 0h-3a2 2 0 0 1-2-2v-3m0 0v-3m0 3h3m0 0v3m0 0v3m0 0h3"></path>
+                </svg>
+            </div>
+            <p class="warning-text">Para uma experiência completa, <strong>aperte F11</strong> e ative o modo tela cheia.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const warningOverlay = document.getElementById('fullscreen-warning');
+
+            function isFullScreen() {
+                return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            }
+
+            const handleFullscreenChange = () => {
+                // Usa um pequeno delay para garantir que o estado da tela foi atualizado
+                setTimeout(() => {
+                    if (isFullScreen()) {
+                        warningOverlay.classList.add('hidden');
+                    } else {
+                        warningOverlay.classList.remove('hidden');
+                    }
+                }, 100); // Aumentamos o tempo de espera para maior confiabilidade
+            };
+
+            // Adiciona um listener para o evento de 'keydown' para o F11
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'F11' || event.keyCode === 122) {
+                    // Impede o comportamento padrão do navegador de ir para tela cheia
+                    event.preventDefault();
+                    
+                    // Tenta forçar a entrada em tela cheia se não estiver nela
+                    if (!isFullScreen()) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            console.error(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+                        });
+                    }
+                }
+            });
+
+            // Adiciona os listeners para o evento de mudança de tela cheia
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+            // Verifica o estado inicial da tela para mostrar ou esconder o aviso
+            if (!isFullScreen()) {
+                warningOverlay.classList.remove('hidden');
+            }
+        });
+    </script>
+<div id="context-menu">
+  <ul>
+    <li id="refresh">Atualizar</li>
+    <li id="create-btn">Novo Arquivo</li>
+    <li id="settings">Configurações</li>
+    <li id="about">Sobre</li>
+  </ul>
+</div>
+<style>
+  
+#context-menu {
+  position: absolute;
+  display: none;
+  width: 200px;
+  background: #000000;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  min-width: 100px;
+  z-index: 10000;
+}
+
+#context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+#context-menu li {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#context-menu li:hover {
+  background: #0078d7;
+  color: white;
+}
+</style>
+<script>
+const contextMenu = document.getElementById('context-menu');
+
+// Mostra o menu na posição do clique direito
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  contextMenu.style.top = `${e.clientY}px`;
+  contextMenu.style.left = `${e.clientX}px`;
+  contextMenu.style.display = 'block';
+});
+
+// Esconde o menu quando clicar em qualquer outro lugar
+document.addEventListener('click', () => {
+  contextMenu.style.display = 'none';
+});
+
+// Atualizar a página
+document.getElementById('refresh').addEventListener('click', () => {
+  location.reload();
+});
+
+// Configurações
+appearance
+
+// Sobre
+document.getElementById('about').addEventListener('click', () => {
+  alert("Menu estilo Windows v1.0");
+});
+</script>
+
+</body>
+</html>

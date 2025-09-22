@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração | SquareOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --card-dark: #1e1e1e;
+            --text-light: #e0e0e0;
+            --primary-blue: #007bff;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --warning-orange: #ffc107;
+            --border-color: #333;
+            --shadow-color: rgba(0,0,0,0.4);
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            --element-spacing: 20px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: var(--element-spacing);
+        }
+
+        .container { max-width: 1300px; margin: auto; }
+
+        h1 { text-align:center; color: var(--primary-blue); margin-bottom: calc(var(--element-spacing)*2); }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--element-spacing);
+            margin-bottom: calc(var(--element-spacing)*2);
+        }
+
+        .stat-card {
+            background-color: var(--card-dark);
+            padding: calc(var(--element-spacing)*1.25);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            border-left: 5px solid var(--primary-blue);
+            transition: transform 0.3s ease-in-out;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card.users { border-left-color: var(--primary-blue); }
+        .stat-card.vips { border-left-color: var(--success-green); }
+        .stat-card.online { border-left-color: var(--warning-orange); }
+
+        .stat-card h2 { margin:0 0 calc(var(--element-spacing)/2) 0; font-size:1.3rem; }
+        .stat-card p { font-size:2.8rem; margin:0; font-weight:600; }
+
+        .stat-card .icon { font-size:2.5rem; margin-bottom: calc(var(--element-spacing)/2); display:flex; justify-content:center; align-items:center; height:60px; }
+        .stat-card.vips .icon { color: var(--success-green); }
+        .stat-card.online .icon { color: var(--warning-orange); }
+
+        /* Search */
+        #user-search { width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background-color: var(--card-dark); color: var(--text-light); margin-bottom: var(--element-spacing); }
+        #user-search:focus { border-color: var(--primary-blue); outline:none; }
+
+        /* Table */
+        .data-table { width:100%; border-collapse:collapse; background-color: var(--card-dark); border-radius:12px; overflow:hidden; box-shadow: var(--card-shadow); }
+        .data-table th, .data-table td { padding: 12px; border-bottom:1px solid var(--border-color); text-align:left; }
+        .data-table th { background-color: rgba(255,255,255,0.05); font-weight:600; text-transform:uppercase; font-size:0.9rem; }
+        .data-table tr:hover { background-color: #2a2a2a; }
+
+        /* Buttons */
+        button { padding:10px 20px; margin:4px; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition: 0.2s; font-size:0.9rem; }
+        .btn-primary { background-color: var(--primary-blue); color:#fff; }
+        .btn-primary:hover { background-color:#0056b3; }
+        .btn-success { background-color: var(--success-green); color:#fff; }
+        .btn-success:hover { background-color:#218838; }
+        .btn-danger { background-color: var(--danger-red); color:#fff; }
+        .btn-danger:hover { background-color:#c82333; }
+
+        .vip-true { color: var(--success-green); font-weight:bold; }
+        .vip-false { color: var(--danger-red); font-weight:bold; }
+
+        select { padding:10px; border-radius:8px; background-color: var(--bg-dark); color: var(--text-light); border:1px solid var(--border-color); }
+        select:focus { border-color: var(--primary-blue); outline:none; }
+
+        .machine-subtable { width:95%; margin: var(--element-spacing) auto; background-color:#2a2a2a; border-radius:8px; border-collapse:collapse; }
+        .machine-subtable th, .machine-subtable td { padding:10px; border-bottom:1px solid #444; }
+        .machine-subtable th { background-color:#1e1e1e; font-weight:600; text-transform:uppercase; font-size:0.85rem; }
+        .machine-subtable tr:hover { background-color:#353535; }
+
+        .action-buttons { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+
+        footer { text-align:center; color:#777; margin-top:40px; font-size:0.85rem; }
+        .status-message { text-align:center; padding:15px; margin-top:20px; border-radius:8px; font-weight:600; display:none; }
+        .status-message.success { background-color: var(--success-green); color:#fff; }
+        .status-message.error { background-color: var(--danger-red); color:#fff; }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>SQUARE OS Admin Dashboard</h1>
+
+    <div class="dashboard-grid">
+        <div class="stat-card users">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <h2>Total de Usuários</h2>
+            <p id="total-users">0</p>
+        </div>
+        <div class="stat-card vips">
+            <div class="icon"><i class="fas fa-crown"></i></div>
+            <h2>Assinantes VIP</h2>
+            <p id="total-vips">0</p>
+        </div>
+        <div class="stat-card online">
+            <div class="icon"><i class="fas fa-server"></i></div>
+            <h2>Máquinas Ativas</h2>
+            <p id="total-online-machines">0</p>
+        </div>
+    </div>
+
+    <input type="text" id="user-search" placeholder="Buscar por nome ou email...">
+
+    <h2 class="section-title">Gerenciamento de Usuários</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Cargo</th>
+                <th>Status VIP</th>
+                <th>Máquinas</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+    </table>
+
+    <div id="status-message" class="status-message"></div>
+</div>
+
+<footer>
+<p>Copyright © 2025 Miguel Viana. Todos os direitos reservados. Software proprietário SQUARE OS.</p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const BASE_URL = ''; // Deixe vazio se for mesmo host
+    const userTableBody = document.getElementById('user-table-body');
+    const userSearchInput = document.getElementById('user-search');
+    const statusMessage = document.getElementById('status-message');
+
+    function showStatusMessage(msg, type) {
+        statusMessage.textContent = msg;
+        statusMessage.className = `status-message ${type}`;
+        statusMessage.style.display = 'block';
+        setTimeout(()=>statusMessage.style.display='none', 3000);
+    }
+
+    function renderUserTable(users) {
+        userTableBody.innerHTML='';
+        if(!users.length){
+            userTableBody.innerHTML='<tr><td colspan="7" style="text-align:center;">Nenhum usuário encontrado.</td></tr>';
+            return;
+        }
+        users.forEach(u=>{
+            const row=document.createElement('tr');
+            row.innerHTML=`
+                <td>${u.id}</td>
+                <td>${u.nome}</td>
+                <td>${u.email}</td>
+                <td>
+                    <select class="cargo-select" data-user-id="${u.id}">
+                        <option value="user" ${u.cargo=='user'?'selected':''}>User</option>
+                        <option value="admin" ${u.cargo=='admin'?'selected':''}>Admin</option>
+                        <option value="moderator" ${u.cargo=='moderator'?'selected':''}>Moderator</option>
+                    </select>
+                </td>
+                <td class="${u.vip?'vip-true':'vip-false'}">${u.vip?'Ativo':'Inativo'}</td>
+                <td>
+                    <button class="btn-primary" onclick="toggleMachines(${u.id})">Ver Máquinas</button>
+                    <div id="machines-${u.id}" style="display:none;"></div>
+                </td>
+                <td class="action-buttons">
+                    <button class="btn-${u.vip?'danger':'success'}" onclick="toggleVIP(${u.id},${u.vip})">${u.vip?'Remover VIP':'Dar VIP'}</button>
+                    <button class="btn-danger" onclick="deleteUser(${u.id})">Excluir</button>
+                </td>
+            `;
+            userTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.cargo-select').forEach(select=>{
+            select.addEventListener('change', async e=>{
+                const userId=e.target.dataset.userId;
+                const cargo=e.target.value;
+                try{
+                    const res=await fetch(`${BASE_URL}/admin/user/${userId}/cargo`,{
+                        method:'PUT',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({cargo})
+                    });
+                    if(res.ok) showStatusMessage('Cargo atualizado!','success');
+                    else showStatusMessage('Erro ao atualizar cargo','error');
+                }catch(err){console.error(err);showStatusMessage('Erro de conexão','error');}
+            });
+        });
+    }
+
+    async function fetchData(){
+        try{
+            const [usersRes, statsRes]=await Promise.all([fetch(`${BASE_URL}/admin/users`),fetch(`${BASE_URL}/admin/stats`)]);
+            const users=await usersRes.json();
+            const stats=await statsRes.json();
+            document.getElementById('total-users').textContent=stats.total_usuarios||0;
+            document.getElementById('total-vips').textContent=stats.assinantes_vip||0;
+            document.getElementById('total-online-machines').textContent=stats.maquinas_ativas||0;
+            renderUserTable(users);
+        }catch(err){console.error(err);showStatusMessage('Erro ao carregar dados do painel','error');}
+    }
+
+    window.toggleVIP=async (userId,currentVIP)=>{
+        if(!confirm(`Deseja ${currentVIP?'remover VIP de':'dar VIP para'} usuário ${userId}?`)) return;
+        const newVIP=!currentVIP;
+        try{
+            const res=await fetch(`${BASE_URL}/admin/user/${userId}/vip`,{
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({vip:newVIP})
+            });
+            if(res.ok){showStatusMessage('VIP atualizado!','success');fetchData();}
+            else showStatusMessage('Erro ao atualizar VIP','error');
+        }catch(err){console.error(err);showStatusMessage('Erro de conexão','error');}
+    }
+
+    window.toggleMachines=async (userId)=>{
+        const container=document.getElementById(`machines-${userId}`);
+        if(container.style.display==='block'){container.style.display='none'; container.innerHTML=''; return;}
+        container.style.display='block'; container.innerHTML='<p style="text-align:center;">Carregando máquinas...</p>';
+        try{
+            const res=await fetch(`${BASE_URL}/admin/user/${userId}/machines`);
+            const machines=await res.json();
+            let html=`<table class="machine-subtable"><thead><tr><th>Nome</th><th>Online</th><th>Ações</th></tr></thead><tbody>`;
+            if(!machines.length) html+=`<tr><td colspan="3" style="text-align:center;">Nenhuma máquina registrada.</td></tr>`;
+            else machines.forEach(m=>{html+=`<tr><td>${m.maquina_nome}</td><td>${m.online?'Sim':'Não'}</td><td><button class="btn-danger" onclick="deleteMachine(${m.id})">Excluir</button></td></tr>`;});
+            html+='</tbody></table>'; container.innerHTML=html;
+        }catch(err){console.error(err); container.innerHTML='<p style="text-align:center;">Erro ao carregar máquinas.</p>';}
+    }
+
+    window.deleteMachine=async (machineId)=>{
+        if(!confirm("Deseja realmente excluir esta máquina?")) return;
+        try{const res=await fetch(`${BASE_URL}/admin/machine/${machineId}/delete`,{method:'DELETE'});
+        if(res.ok){showStatusMessage('Máquina excluída!','success');fetchData();}else showStatusMessage('Erro ao excluir máquina','error');}catch(err){console.error(err);showStatusMessage('Erro de conexão','error');}
+    }
+
+    window.deleteUser=async (userId)=>{
+        if(!confirm("Deseja realmente excluir este usuário e suas máquinas?")) return;
+        try{const res=await fetch(`${BASE_URL}/admin/user/${userId}/delete`,{method:'DELETE'});
+        if(res.ok){showStatusMessage('Usuário excluído!','success');fetchData();}else showStatusMessage('Erro ao excluir usuário','error');}catch(err){console.error(err);showStatusMessage('Erro de conexão','error');}
+    }
+
+    userSearchInput.addEventListener('input',()=>{
+        const searchText=userSearchInput.value.toLowerCase();
+        Array.from(userTableBody.querySelectorAll('tr')).forEach(row=>{
+            const name=row.cells[1].textContent.toLowerCase();
+            const email=row.cells[2].textContent.toLowerCase();
+            row.style.display=(name.includes(searchText)||email.includes(searchText))?'':'none';
+        });
+    });
+
+    fetchData();
+});
+</script>
+</body>
+</html>
