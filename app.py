@@ -317,31 +317,49 @@ def documenacao():
     return render_template("documentacao.html")
  
 # --- ROTA PARA EXECUTAR CÓDIGO ---
+# --- Imports necessários ---
+import tempfile
+import subprocess
+import os
+import threading
+
+
 @app.route('/run-code', methods=['POST'])
 def run_code():
     """
     Executa o código recebido do cliente, com base na linguagem especificada.
     Suporta Lineax, Python, e orienta para linguagens de front-end.
     """
+    # Lógica de controle de concorrência.
+    # Evita que múltiplas requisições de execução sobrecarreguem o servidor.
     if not execution_lock.acquire(blocking=False):
         return jsonify({"output": "Aguarde, outra execução está em andamento."}), 429
 
+    # É uma boa prática liberar o lock no bloco `finally` para garantir
+    # que seja sempre liberado, mesmo em caso de erro.
     try:
-        data = request.json
+        data = request.get_json()
+        if data is None:
+            return jsonify({'output': 'Erro: Dados de entrada não são um JSON válido.'}), 400
+            
         code = data.get('code', '')
-        language = data.get('language', 'plaintext')
+        language = data.get('language', 'plaintext').lower()
 
         if not code or not language:
             return jsonify({'output': 'Erro: Código ou linguagem não fornecidos.'}), 400
 
-        # --- LÓGICA DE EXECUÇÃO: LINGUAGEM LINEX (LX) ---
+        # --- LÓGICA DE EXECUÇÃO: LINHA LINEAX (LX) ---
         if language in ['lineax', 'lx', 'sq']:
             try:
-                # Chama a função do interpretador Lineax para processar o código
-                # O nome da função está consistente com o nome importado acima
+                # Chama a função do interpretador Lineax.
+                # A função deve ser importada de um módulo seguro.
+                # Certifique-se de que a função lida com segurança
+                # o código, sem acesso ao sistema de arquivos, etc.
+                # A saída é um array, portanto, juntamos as linhas.
                 output = executar_codigo_lineax(code)
                 return jsonify({'output': '\n'.join(output)})
             except Exception as e:
+                # Erros específicos do interpretador Lineax são tratados aqui.
                 return jsonify({'output': f'Erro de execução do Lineax:\n{str(e)}'}), 400
 
         # --- LÓGICA DE EXECUÇÃO: LINGUAGEM PYTHON ---
@@ -352,39 +370,50 @@ def run_code():
                     temp_file.write(code)
                     temp_filename = temp_file.name
                 
+                # Executa o código Python em um subprocesso.
+                # É uma boa prática usar `sys.executable` para garantir o
+                # uso do mesmo interpretador Python.
                 result = subprocess.run(
-                    ['python3', temp_filename],
+                    [sys.executable, temp_filename],
                     capture_output=True,
                     text=True,
                     timeout=15,
                     check=True
                 )
                 return jsonify({'output': result.stdout})
+
             except subprocess.CalledProcessError as e:
+                # Captura erros de execução do código Python (ex: SyntaxError, etc.)
                 return jsonify({'output': f'Erro de execução:\n{e.stderr}'}), 400
             except subprocess.TimeoutExpired:
+                # Captura timeout de execução.
                 return jsonify({'output': 'Erro: Tempo de execução excedido (15 segundos).'}), 400
             except FileNotFoundError:
-                return jsonify({'output': 'Erro: O interpretador `python3` não foi encontrado.'}), 500
+                # Caso o interpretador Python não seja encontrado.
+                return jsonify({'output': 'Erro: O interpretador Python não foi encontrado.'}), 500
             except Exception as e:
+                # Erros inesperados no processo de criação/execução do arquivo.
                 return jsonify({'output': f'Erro inesperado:\n{str(e)}'}), 500
             finally:
+                # Garante que o arquivo temporário é sempre removido.
                 if temp_filename and os.path.exists(temp_filename):
                     os.remove(temp_filename)
 
         # --- ORIENTAÇÃO PARA LINGUAGENS DE FRONT-END ---
         elif language in ['html', 'css', 'javascript']:
-            return jsonify({"output": "Navegue para a aba de Visualização (Preview) para ver o resultado do seu código."})
+            # Resposta mais clara para o usuário sobre a natureza dessas linguagens.
+            return jsonify({"output": "Linguagens de front-end como HTML, CSS e JavaScript não são executadas no servidor. Elas são renderizadas diretamente no seu navegador. Navegue para a aba de Visualização (Preview) para ver o resultado do seu código."})
 
         # --- CASO DE LINGUAGEM NÃO SUPORTADA ---
         else:
             return jsonify({'output': f'Linguagem "{language}" não suportada para execução.'})
 
     except Exception as e:
+        # Tratamento genérico para erros inesperados no bloco `try` principal.
         return jsonify({'output': f'Erro interno do servidor: {str(e)}'}), 500
     finally:
+        # Garante que o lock é sempre liberado.
         execution_lock.release()
-
 # --- ROTA PARA ABRIR A IDE ---
 @app.route("/iride", methods=["POST"])
 @login_required
@@ -797,7 +826,7 @@ def login():
             # Lógica de redirecionamento baseada no total de logins
             if user.total_logins == 1:
                 flash("Bem-vindo! Por favor, responda a algumas perguntas rápidas.", "info")
-                return redirect(url_for("quiz"))
+                return redirect(url_for("inicio"))
             else:
                 flash("Login realizado!", "success")
                 return redirect(url_for("inicio"))
@@ -1457,20 +1486,38 @@ QA_MAPPING = [
 
 
 
-# --- Início da nova lógica com LLM para similaridade ---
 
-# --- Imports necessários ---
 import random
 import os
-
+from flask import Flask, request, jsonify, send_from_directory, current_app
 from sentence_transformers import SentenceTransformer, util
 
 
 
-# Carrega o modelo de IA e os embeddings uma única vez no início.
-model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
-corpus_queries = [item["query"] for item in QA_MAPPING]
-corpus_embeddings = model.encode(corpus_queries, convert_to_tensor=True)
+# Configurações de exemplo (devem ser carregadas de um arquivo de configuração real)
+
+# Caminho para o diretório de áudio.
+# Substitua por um caminho real no seu ambiente de produção.
+app.config['AUDIO_DIR'] = 'caminho/para/seu/diretorio/de/audios'
+
+# --- Inicialização do Modelo de IA ---
+# Esta lógica de inicialização é crucial para que o modelo
+# seja carregado apenas uma vez. O Flask `app_context` é
+# o lugar ideal para isso.
+with app.app_context():
+    try:
+        model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
+        QA_MAPPING = current_app.config.get('QA_MAPPING', [])
+        corpus_queries = [item["query"] for item in QA_MAPPING]
+        corpus_embeddings = model.encode(corpus_queries, convert_to_tensor=True)
+        print("Modelo de IA e embeddings carregados com sucesso.")
+    except Exception as e:
+        print(f"Erro ao carregar o modelo de IA ou os embeddings: {e}")
+        model = None
+        QA_MAPPING = []
+        corpus_embeddings = []
+        # Saída do programa se o modelo não puder ser carregado
+        # raise SystemExit(f"Não foi possível iniciar a aplicação devido ao erro: {e}")
 
 # Limite de similaridade.
 SIMILARITY_THRESHOLD = 0.65
@@ -1480,6 +1527,9 @@ def find_best_match(user_query):
     """
     Usa o modelo de IA para encontrar a pergunta mais similar na lista.
     """
+    if not model:
+        return {"score": 0, "audio_options": [], "response": "O modelo de IA não está disponível."}
+
     query_embedding = model.encode(user_query, convert_to_tensor=True)
     cosine_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
     best_match_index = int(cosine_scores.argmax())
@@ -1488,22 +1538,24 @@ def find_best_match(user_query):
     
     return {
         "score": best_score,
-        "audio_options": [best_match_data.get("audio"), best_match_data.get("audio2"), best_match_data.get("audio3")],
+        "audio_options": [
+            best_match_data.get("audio"), 
+            best_match_data.get("audio2"), 
+            best_match_data.get("audio3")
+        ],
         "response": best_match_data.get("response")
     }
 
 def normalize_text(text):
     """
     Normaliza o texto: remove acentos, pontuação e converte para minúsculas.
-    Ex: "Olá, tudo bem?" -> "ola tudo bem"
     """
     if not isinstance(text, str):
         return ""
     text = ''.join(c for c in text if c.isalnum() or c.isspace())
-    text = text.lower()
-    return text.strip()
+    return text.lower().strip()
 
-# --- Rota da API ---
+# --- Rotas da API ---
 @app.route('/process-audio', methods=['POST'])
 def process_audio():
     """
@@ -1511,35 +1563,32 @@ def process_audio():
     e retorna o áudio e texto correspondentes.
     """
     try:
-        data = request.get_json()
-        user_text = data.get('text', '')
+        data = request.get_json(force=True)
+        user_text = data.get('text', '').strip()
 
         if not user_text:
             return jsonify({"status": "error", "message": "Texto de entrada vazio."}), 400
 
         top_result = find_best_match(user_text)
         score_similaridade = top_result['score']
+        response_text = top_result['response']
+        # Filtra valores nulos da lista de áudios
+        audio_options = [aud for aud in top_result['audio_options'] if aud]
 
-        # Se a similaridade for maior que o limite, usa a resposta da IA.
-        if score_similaridade >= SIMILARITY_THRESHOLD:
-            response_text = top_result.get('response', 'Desculpe, não encontrei uma resposta.')
-            
-            # --- VERIFICAÇÃO PRINCIPAL: REDIRECIONAR SE A INTENÇÃO FOR APRENDER A MEXER ---
-            # A resposta 'Claro, irei te levar até a documentação' indica a intenção de redirecionamento.
-            if response_text == "Claro, irei te levar até a documentação":
-                # **CORREÇÃO AQUI**: Retorna um JSON que o frontend irá processar para redirecionar.
-                return jsonify({
-                    "status": "redirect",
-                    "message": "Redirecionando para a documentação...",
-                    "redirect_url": "/documentacao" 
-                })
+        # 1. VERIFICAÇÃO DE INTENÇÃO DE REDIRECIONAMENTO
+        if score_similaridade >= SIMILARITY_THRESHOLD and "documentacao" in response_text.lower():
+            return jsonify({
+                "status": "redirect",
+                "message": "Redirecionando para a documentação...",
+                "redirect_url": "/documentacao" 
+            })
 
-            # Se não for uma solicitação de redirecionamento, continua a lógica normal
-            audio_choices = top_result.get("audio_options", [])
-            response_audio_file = random.choice(audio_choices) if audio_choices else None
-            
+        # 2. SE A SIMILARIDADE FOR SUFICIENTE, BUSCA A RESPOSTA
+        if score_similaridade >= SIMILARITY_THRESHOLD and audio_options:
+            response_audio_file = random.choice(audio_options)
+        
+        # 3. SE NÃO HOUVER SIMILARIDADE OU OPÇÕES DE ÁUDIO, USA RESPOSTA PADRÃO
         else:
-            # Lógica para resposta padrão de "não entendi".
             lista_audios_nao_entendi = [
                 "desculpe_nao_entendi.mp3", "desculpe_nao_entendi1.mp3",
                 "desculpe_nao_entendi2.mp3", "desculpe_nao_entendi3.mp3",
@@ -1552,10 +1601,11 @@ def process_audio():
             score_similaridade = 0
 
         # Verifica se o arquivo de áudio existe no servidor
-        if response_audio_file and not os.path.exists(os.path.join(AUDIO_DIR, response_audio_file)):
+        AUDIO_DIR = current_app.config.get('AUDIO_DIR')
+        if not os.path.exists(os.path.join(AUDIO_DIR, response_audio_file)):
             return jsonify({
                 "status": "error",
-                "message": f"Arquivo de áudio não encontrado no servidor."
+                "message": f"Arquivo de áudio '{response_audio_file}' não encontrado no servidor."
             }), 404
 
         # Retorna a resposta JSON normal
@@ -1567,21 +1617,37 @@ def process_audio():
         })
 
     except Exception as e:
-        print(f"Erro ao processar áudio: {e}")
-        return jsonify({"status": "error", "message": "Ocorreu um erro no servidor."}), 500
+        print(f"Erro ao processar requisição: {e}")
+        return jsonify({"status": "error", "message": "Ocorreu um erro interno no servidor."}), 500
+
 
 @app.route('/get-audio/<path:filename>')
 def get_audio(filename):
     """
     Envia o arquivo de áudio solicitado pelo frontend.
     """
-    return send_from_directory(AUDIO_DIR, filename)
-@app.route('/')
-def index():
-    """
-    Serve o arquivo HTML principal da IDE.
-    """
-    return send_from_directory('.', 'index.html')
+    AUDIO_DIR = current_app.config.get('AUDIO_DIR')
+    
+    # Valida se o diretório de áudio foi configurado corretamente
+    if not AUDIO_DIR or not os.path.exists(AUDIO_DIR):
+        return jsonify({"status": "error", "message": "Diretório de áudio não configurado ou não encontrado."}), 500
+
+    # Retorna o arquivo de áudio se ele existir no diretório
+    try:
+        if not os.path.exists(os.path.join(AUDIO_DIR, filename)):
+            return jsonify({"status": "error", "message": "Arquivo não encontrado."}), 404
+        return send_from_directory(AUDIO_DIR, filename)
+    except Exception as e:
+        print(f"Erro ao servir o arquivo de áudio: {e}")
+        return jsonify({"status": "error", "message": "Ocorreu um erro ao servir o arquivo."}), 500
+
+if __name__ == '__main__':
+    # O caminho para o diretório de áudio deve ser configurado aqui.
+    # Exemplo: os.makedirs('audios', exist_ok=True)
+    # app.config['AUDIO_DIR'] = 'audios'
+    # app.run(debug=True)
+    print("Para executar o servidor, adicione um `if __name__ == '__main__':`")
+    print("e configure a variável `app.config['AUDIO_DIR']` com o caminho correto.")
 
 @app.route("/admin_dashboard")
 @login_required

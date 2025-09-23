@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SquareOS • Logs</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/icones/icones 1/logo.png') }}" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos do seu código original */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body {
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            flex-direction:column;
+            background: #0f0f0f;
+            color: #eee;
+            overflow:hidden;
+            position:relative;
+        }
+        body::before {
+            content:"";
+            position:absolute; top:-50%; left:-50%; right:-50%; bottom:-50%;
+            background: radial-gradient(circle at 30% 30%, rgba(140,82,255,0.3), transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(100,82,255,0.2), transparent 50%);
+            filter:blur(100px);
+            z-index:0;
+            animation: waveBody 10s infinite ease-in-out alternate;
+        }
+        @keyframes waveBody {
+            0% { transform:scale(1) translate(0,0); opacity:0.5; }
+            50% { transform:scale(1.05) translate(20px,-20px); opacity:0.7; }
+            100% { transform:scale(1) translate(-20px,20px); opacity:0.5; }
+        }
+        .container {
+            position:relative;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 90%;
+            z-index:1;
+            box-shadow:0 10px 30px rgba(0,0,0,0.5);
+            text-align:center;
+        }
+        .container::before {
+            content:"";
+            position:absolute;
+            top:-20px; left:-20px; right:-20px; bottom:-20px;
+            border-radius:20px;
+            background: radial-gradient(circle at 20% 20%, rgba(140,82,255,0.15), transparent 70%),
+                        radial-gradient(circle at 80% 80%, rgba(100,82,255,0.15), transparent 70%);
+            filter:blur(15px);
+            z-index:-1;
+            animation: waveBox 8s infinite ease-in-out alternate;
+        }
+        @keyframes waveBox {
+            0% { transform:scale(1) translate(0,0); opacity:0.5; }
+            50% { transform:scale(1.05) translate(5px,-5px); opacity:0.8; }
+            100% { transform:scale(1) translate(-5px,5px); opacity:0.5; }
+        }
+        h1 {
+            font-size: 22px;
+            color:#8c52ff;
+            margin-bottom: 25px;
+        }
+        .logs {
+            background: rgba(20,0,30,0.8);
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 260px;
+            overflow-y:auto;
+            box-shadow:0 0 20px rgba(140,82,255,0.3);
+            margin-bottom: 25px;
+            text-align:left;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .logs p {
+            margin:4px 0;
+            opacity:0;
+            transition: opacity 0.4s ease-in;
+        }
+        .loading-bar {
+            width:100%;
+            height:8px;
+            background:#1a001f;
+            border-radius:6px;
+            overflow:hidden;
+            margin-bottom:20px;
+        }
+        .loading-progress {
+            width:30%;
+            height:100%;
+            background: linear-gradient(90deg,#8c52ff,#c792ea,#8c52ff);
+            border-radius:6px;
+            animation: load 1.5s infinite linear;
+        }
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+        input[name="senha"] {
+            padding:12px;
+            width:80%;
+            max-width:400px;
+            border-radius:8px;
+            border:1px solid #9f7aea;
+            background:#1a001f;
+            color:#eee;
+            font-size:14px;
+            outline:none;
+            margin-bottom:15px;
+        }
+        input[name="senha"]::placeholder { color:#9f7aea; }
+        #btn-entrar {
+            padding:12px 30px;
+            font-size:16px;
+            font-weight:bold;
+            color:#0a0a0a;
+            background:#c792ea;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            box-shadow:0 0 15px rgba(199,145,235,0.5);
+            display:none;
+            transition:0.3s;
+        }
+        #btn-entrar:hover {
+            background:#9f7aea;
+            transform:scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>INICIALIZANDO SQUARE OS...</h1>
+
+    <div class="logs" id="logContainer">
+        </div>
+
+    <div class="loading-bar">
+        <div class="loading-progress"></div>
+    </div>
+
+    <form action="{{ url_for('entrar_maquina', maquina_id=maquina.id) }}" method="POST">
+        <input type="password" name="senha" placeholder="Senha da máquina" required>
+        <button type="submit" id="btn-entrar">Entrar</button>
+    </form>
+</div>
+
+<script>
+    const logContainer = document.getElementById("logContainer");
+    const btnEntrar = document.getElementById("btn-entrar");
+    const fixedLogs = [
+        "Boot sequence started...",
+        "Kernel v5.12.9 loaded.",
+        "Loading Square OS modules...",
+        "Core Services ✓",
+        "Virtualization Engine ✓",
+        "Synapse link established.",
+        "Secure channel initialized.",
+        "User profile cache synced.",
+        "SquareOS Online ✓",
+        "System ready."
+    ];
+    let logIndex = 0;
+
+    function formatTime(date) {
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `[${hours}:${minutes}:${seconds}]`;
+    }
+
+    function addLog(message) {
+        const log = document.createElement("p");
+        log.textContent = `${formatTime(new Date())} ${message}`;
+        logContainer.appendChild(log);
+        // Transição de opacidade
+        setTimeout(() => log.style.opacity = "1", 50);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function startBootSequence() {
+        if (logIndex < fixedLogs.length) {
+            addLog(fixedLogs[logIndex]);
+            logIndex++;
+            setTimeout(startBootSequence, 700);
+        } else {
+            // Quando os logs fixos terminarem, inicie os dinâmicos
+            showDynamicLogs();
+            setTimeout(() => { btnEntrar.style.display = "inline-block"; }, 600);
+        }
+    }
+
+    function showDynamicLogs() {
+        let cpuUsage = 15;
+        let ramUsage = 30;
+
+        setInterval(() => {
+            cpuUsage = Math.floor(Math.random() * (40 - 10 + 1)) + 10;
+            ramUsage = Math.floor(Math.random() * (50 - 20 + 1)) + 20;
+            addLog(`Performance: CPU: ${cpuUsage}% | RAM: ${ramUsage}%`);
+        }, 3000);
+    }
+
+    window.onload = startBootSequence;
+</script>
+</body>
+</html>

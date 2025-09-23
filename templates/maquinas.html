@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SquareOS • Início</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="icon" href="assets/icones/icones 1/logo.png" type="image/png">
+<style>
+/* --- Base Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: #0f0f0f;
+    color: #eee;
+    overflow: hidden;
+    position: relative;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.light {
+    background: #f5f5f5;
+    color: #111;
+}
+
+/* --- Animated Background --- */
+body::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: radial-gradient(circle at 30% 30%, rgba(180, 82, 255, 0.5), transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(100, 82, 255, 0.5), transparent 50%);
+    filter: blur(120px);
+    z-index: 0;
+    animation: waveBody 10s infinite ease-in-out alternate;
+}
+
+@keyframes waveBody {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+    50% { transform: scale(1.1) translate(30px, -20px); opacity: 0.8; }
+    100% { transform: scale(1) translate(-30px, 20px); opacity: 0.5; }
+}
+
+/* --- Navigation Bar --- */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 1000;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light .nav {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    height: 48px;
+    transition: transform 0.3s;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #8c52ff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #a46dff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(140, 82, 255, 0.4);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #f5f5f5;
+    transition: color 0.3s, transform 0.2s;
+    padding: 8px;
+}
+
+body.light .btn-icon {
+    color: #333;
+}
+
+.btn-icon:hover {
+    transform: scale(1.15);
+}
+
+/* --- Main Container --- */
+.main-container {
+    position: relative;
+    padding: 100px 24px 40px;
+    max-width: 1280px;
+    margin: auto;
+    z-index: 1;
+}
+
+.main-container::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    border-radius: 20px;
+    background: radial-gradient(circle at 20% 20%, rgba(180, 82, 255, 0.3), transparent 70%),
+                radial-gradient(circle at 80% 80%, rgba(100, 82, 255, 0.3), transparent 70%);
+    filter: blur(20px);
+    z-index: -1;
+    animation: waveBox 8s infinite ease-in-out alternate;
+}
+
+@keyframes waveBox {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+    50% { transform: scale(1.05) translate(5px, -5px); opacity: 0.8; }
+    100% { transform: scale(1) translate(-5px, 5px); opacity: 0.5; }
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+body.light h1 {
+    color: #111;
+}
+
+/* --- Search Bar --- */
+.search-bar {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.search-bar input {
+    width: 100%;
+    max-width: 450px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    outline: none;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-bar input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #8c52ff;
+    box-shadow: 0 0 10px rgba(140, 82, 255, 0.4);
+}
+
+body.light .search-bar input {
+    background: #eee;
+    color: #111;
+    border-color: #ddd;
+}
+
+body.light .search-bar input:focus {
+    background: #fff;
+    border-color: #8c52ff;
+}
+
+/* --- Machine Cards Grid --- */
+.maquinas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.light .card {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+body.light .card-title {
+    color: #111;
+}
+
+.card-status {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 12px;
+    color: white;
+}
+
+.status-online { background: #2ecc71; }
+.status-offline { background: #e74c3c; }
+
+.card-info {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 12px;
+}
+
+body.light .card-info {
+    color: #555;
+}
+
+.card-plan {
+    font-weight: 700;
+    display: inline-block;
+}
+
+.plan-free { color: #aaa; }
+.plan-vip { background: linear-gradient(90deg, #ffd700, #ffa500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.plan-premium { color: #8c52ff; }
+.plan-enterprise { color: #00bcd4; }
+
+.card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.btn-secondary {
+    background: #555;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #777;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .nav {
+        padding: 0 16px;
+    }
+    .logo {
+        height: 40px;
+    }
+    .actions {
+        gap: 8px;
+    }
+    .btn {
+        padding: 10px 16px;
+    }
+    h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav {
+        height: 64px;
+    }
+    .btn-primary {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    .maquinas-grid {
+        grid-template-columns: 1fr;
+    }
+    .main-container {
+        padding: 80px 16px 20px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+    <img class="logo" src="https://i.postimg.cc/2yR5JBJd/logo.png" alt="Square OS" />
+    <div class="actions">
+        <button class="btn-icon toggle-theme" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <a href="{{ url_for('new_maquina') }}" class="btn btn-primary">+ Criar Máquina</a>
+    </div>
+</div>
+
+<div class="main-container">
+    <h1>Minhas Máquinas</h1>
+
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Buscar máquina..." onkeyup="filterMachines()" />
+    </div>
+
+    <div class="maquinas-grid" id="maquinas-list">
+        {% for m in maquinas %}
+        <div class="card">
+            <img class="card-icon" src="{{ url_for('static', filename='machine.png') }}" alt="Máquina" />
+            <h3 class="card-title">{{ m.maquina_nome }}</h3>
+            <span class="card-status {% if m.online %}status-online{% else %}status-offline{% endif %}">
+                {% if m.online %}<i class="fa-solid fa-circle-check"></i> Online {% else %}<i class="fa-solid fa-circle-xmark"></i> Offline {% endif %}
+            </span>
+            <p class="card-info">Usuário: {{ m.usuario_nome }}</p>
+            <p class="card-info">
+                Plano:
+                {% if m.usuario_plano == "vip" %}<span class="card-plan plan-vip">VIP</span>
+                {% elif m.usuario_plano == "premium" %}<span class="card-plan plan-premium">Premium</span>
+                {% elif m.usuario_plano == "enterprise" %}<span class="card-plan plan-enterprise">Enterprise</span>
+                {% else %}<span class="card-plan plan-free">Gratuito</span>{% endif %}
+            </p>
+            <p class="card-info">
+                <i class="fa-solid fa-microchip"></i> CPU: {{ m.cpu }} |
+                <i class="fa-solid fa-memory"></i> RAM: {{ m.ram }} GB |
+                <i class="fa-solid fa-hard-drive"></i> Disco: {{ m.disco }} GB
+            </p>
+            <div class="card-actions">
+                <a href="{{ url_for('entrar_maquina', maquina_id=m.id) }}" class="btn btn-primary">Entrar</a>
+                <a href="{{ url_for('config_maquina', maquina_id=m.id) }}" class="btn btn-secondary">Configurações</a>
+                
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle("light");
+    const themeIcon = document.querySelector(".toggle-theme i");
+    if (body.classList.contains("light")) {
+        themeIcon.classList.remove("fa-moon");
+        themeIcon.classList.add("fa-sun");
+    } else {
+        themeIcon.classList.remove("fa-sun");
+        themeIcon.classList.add("fa-moon");
+    }
+}
+
+function filterMachines() {
+    const input = document.getElementById("search").value.toLowerCase();
+    const machines = document.querySelectorAll(".card");
+    machines.forEach(m => {
+        const name = m.querySelector(".card-title").textContent.toLowerCase();
+        m.style.display = name.includes(input) ? "" : "none";
+    });
+}
+
+function confirmDelete(machineName, deleteUrl) {
+    if (confirm(`Tem certeza que deseja excluir a máquina "${machineName}"?`)) {
+        // Create a form to make a POST request for deletion
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = deleteUrl;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Variáveis CSS para fácil customização */
+        :root {
+            --bg-color: #0d0d0d;
+            --container-bg: #1a1a1a;
+            --text-color: #f0f0f0;
+            --primary-color: #8c52ff;
+            --primary-dark: #6e3fd6;
+            --border-color: #333;
+            --card-hover-color: #2c2c2c;
+        }
+
+        /* Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container Principal do Quiz */
+        .quiz-container {
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Título e Texto */
+        .quiz-container h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .quiz-container p {
+            font-size: 1rem;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        /* Sessão de Perguntas */
+        .question-section {
+            display: none; /* Esconde todas as perguntas por padrão */
+        }
+
+        .question-section.active {
+            display: block; /* Mostra a pergunta ativa */
+        }
+        
+        .question-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-card {
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            background-color: var(--card-hover-color);
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .option-card.selected {
+            background-color: rgba(140, 82, 255, 0.2);
+            border-color: var(--primary-color);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(140, 82, 255, 0.4);
+        }
+
+        /* Barra de Progresso */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Botões de Navegação */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            flex: 1;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Estilos para tela de resultado */
+        .result-screen {
+            display: none; /* Esconde a tela de resultado por padrão */
+        }
+        
+        .result-screen h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Quiz</h1>
+    <p>Responda algumas perguntas para nos ajudar a te conhecer melhor!</p>
+
+    <div class="question-section active" data-question="1">
+        <h2>1. Qual o seu principal objetivo com o nosso serviço?</h2>
+        <div class="options-grid">
+            <div class="option-card" data-answer="dev">Desenvolvimento de Software</div>
+            <div class="option-card" data-answer="productivity">Produtividade e Trabalho</div>
+            <div class="option-card" data-answer="learning">Estudo e Aprendizagem</div>
+            <div class="option-card" data-answer="fun">Diversão e Hobby</div>
+        </div>
+    </div>
+    
+    <div class="question-section" data-question="2">
+        <h2>2. Com qual frequência você usaria a plataforma?</h2>
+        <div class="options-grid">
+            <div class="option-card" data-answer="daily">Diariamente</div>
+            <div class="option-card" data-answer="weekly">Algumas vezes por semana</div>
+            <div class="option-card" data-answer="monthly">Poucas vezes por mês</div>
+            <div class="option-card" data-answer="rarely">Raramente</div>
+        </div>
+    </div>
+    
+    <div class="question-section" data-question="3">
+        <h2>3. Qual recurso mais te chama a atenção?</h2>
+        <div class="options-grid">
+            <div class="option-card" data-answer="cloud-storage">Armazenamento em Nuvem</div>
+            <div class="option-card" data-answer="vms">Máquinas Virtuais (VMs)</div>
+            <div class="option-card" data-answer="collab-tools">Ferramentas de Colaboração</div>
+            <div class="option-card" data-answer="ai-assistants">Assistentes de IA</div>
+        </div>
+    </div>
+
+    <div class="result-screen">
+        <h2>Quiz Concluído!</h2>
+        <p>Obrigado por responder. Suas respostas nos ajudarão a melhorar sua experiência.</p>
+        <div id="quiz-results"></div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar"></div>
+    </div>
+    
+    <div class="navigation-buttons">
+        <button class="btn" id="prevBtn" disabled>Voltar</button>
+        <button class="btn" id="nextBtn">Próximo</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const quizContainer = document.querySelector('.quiz-container');
+        const questions = document.querySelectorAll('.question-section');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const progressBar = document.querySelector('.progress-bar');
+        const resultScreen = document.querySelector('.result-screen');
+        const resultsDiv = document.getElementById('quiz-results');
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+
+        // Funções de controle do Quiz
+        const updateUI = () => {
+            questions.forEach((q, index) => {
+                q.classList.remove('active');
+                if (index === currentQuestionIndex) {
+                    q.classList.add('active');
+                }
+            });
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const selectedOption = currentQuestion.querySelector('.option-card.selected');
+            nextBtn.disabled = !selectedOption;
+            prevBtn.disabled = currentQuestionIndex === 0;
+
+            const progress = (currentQuestionIndex + 1) / questions.length * 100;
+            progressBar.style.width = `${progress}%`;
+        };
+        
+        const showResults = () => {
+            quizContainer.classList.add('hidden');
+            resultScreen.style.display = 'block';
+
+            let resultsHtml = '<h3>Suas Respostas:</h3><ul>';
+            for (const question in userAnswers) {
+                resultsHtml += `<li><strong>${question}:</strong> ${userAnswers[question]}</li>`;
+            }
+            resultsHtml += '</ul>';
+            resultsDiv.innerHTML = resultsHtml;
+        };
+
+        // Event Listeners
+        questions.forEach(q => {
+            q.querySelectorAll('.option-card').forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove a seleção anterior
+                    q.querySelectorAll('.option-card').forEach(opt => opt.classList.remove('selected'));
+                    // Adiciona a nova seleção
+                    option.classList.add('selected');
+                    // Salva a resposta
+                    userAnswers[q.dataset.question] = option.dataset.answer;
+                    // Habilita o botão Próximo
+                    nextBtn.disabled = false;
+                });
+            });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                updateUI();
+            } else {
+                // Finaliza o quiz e mostra os resultados
+                showResults();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                updateUI();
+            }
+        });
+
+        // Inicialização
+        updateUI();
+    });
+</script>
+
+</body>
+</html>

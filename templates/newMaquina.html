@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SquareOS • Criar Máquina</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="assets/icones/icones 1/logo.png" type="image/png">
+    <style>
+        /* Base and Utility Styles */
+        :root {
+            --bg-color-dark: #07090F;
+            --container-bg-color: rgba(255, 255, 255, 0.04);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-color-light: #E0E0E0;
+            --text-color-muted: #8E8E8E;
+            --accent-blue: #0A66C2;
+            --accent-purple: #8B5CF6;
+            --shadow-primary: 0 8px 30px rgba(0, 0, 0, 0.6);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+    height: 100vh;
+    display: flex; /* Define o body como um container flexbox */
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    align-items: center; /* Centraliza o conteúdo verticalmente */
+    background-color: var(--bg-color-dark);
+    color: var(--text-color-light);
+    overflow: hidden;
+    position: relative;
+    padding: 20px;
+}
+
+        /* Animated Background Gradients */
+        .background-gradient {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.35;
+            z-index: 0;
+            animation: moveGradient 18s infinite ease-in-out alternate;
+        }
+
+        .gradient-1 {
+            background: radial-gradient(circle, var(--accent-blue), transparent 60%);
+            top: -15%;
+            left: -15%;
+        }
+
+        .gradient-2 {
+            background: radial-gradient(circle, var(--accent-purple), transparent 60%);
+            bottom: -15%;
+            right: -15%;
+            animation-delay: -9s;
+        }
+
+        @keyframes moveGradient {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(60px, -60px) scale(1.1); }
+        }
+
+        /* Form Container */
+        .container {
+    position: relative;
+    background: var(--container-bg-color);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--shadow-primary);
+    z-index: 1;
+    text-align: center;
+    animation: fadeIn 0.8s ease-out;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto  ;
+    margin-top: 150px;
+    /* Remover as margens auto e outras propriedades de posicionamento */
+}
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--text-color-light);
+            margin-bottom: 35px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .form-group {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* Floating Label Effect */
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 16px 16px 16px 50px; /* Adjusted padding for icon clearance */
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-color-light);
+            font-size: 1rem;
+            outline: none;
+            transition: all var(--transition-speed);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 50px; /* Aligned with input text */
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-muted);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all var(--transition-speed);
+        }
+
+        .form-group input:focus,
+        .form-group input:not(:placeholder-shown),
+        .form-group select:focus,
+        .form-group select:not([value=""]):valid {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group select:focus + label,
+        .form-group select:not([value=""]):valid + label {
+            top: -10px;
+            left: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+            background-color: var(--bg-color-dark);
+            padding: 0 6px;
+        }
+        
+        /* Icons */
+        .icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-muted);
+            font-size: 1.1rem;
+            transition: color var(--transition-speed);
+        }
+
+        .icon.input-icon {
+            left: 18px; /* Adjusted position */
+            z-index: 2;
+        }
+
+        .icon.toggle-password {
+            right: 18px; /* Adjusted position */
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .form-group input:focus + .icon,
+        .form-group select:focus + .icon {
+            color: var(--accent-blue);
+        }
+
+        .select-wrapper::after {
+            content: "\f078";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-muted);
+            pointer-events: none;
+            transition: color var(--transition-speed);
+        }
+        
+        .select-wrapper:focus-within::after {
+            color: var(--accent-blue);
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-color-muted);
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background-color: transparent;
+            position: relative;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.5s;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-blue));
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .container {
+                width: 100%;
+                padding: 30px 25px;
+                border-radius: 15px;
+            }
+            .title {
+                font-size: 2rem;
+                margin-bottom: 25px;
+            }
+            .form-group input,
+            .form-group select {
+                padding: 14px 14px 14px 45px;
+                font-size: 0.95rem;
+            }
+            .form-group label {
+                left: 45px;
+            }
+        }
+        /* --- Estilo base do select --- */
+.select-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.select-wrapper select {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background-color: #1a1a1a;
+    color: #fff;
+    appearance: none; /* Remove seta padrão */
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.select-wrapper label {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background-color: #1a1a1a;
+    padding: 0 6px;
+    font-size: 12px;
+    color: #aaa;
+    pointer-events: none;
+    transition: color 0.3s;
+}
+
+/* Hover e foco */
+.select-wrapper select:hover {
+    border-color: #8c52ff;
+    box-shadow: 0 0 6px rgba(140, 82, 255, 0.4);
+}
+
+.select-wrapper select:focus {
+    outline: none;
+    border-color: #8c52ff;
+    box-shadow: 0 0 10px rgba(140, 82, 255, 0.6);
+}
+
+/* Setinha personalizada */
+.select-wrapper::after {
+    content: "\25BC"; /* seta para baixo */
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #ccc;
+    font-size: 12px;
+}
+
+/* Light mode opcional */
+body.light .select-wrapper select {
+    background-color: #fff;
+    color: #111;
+    border: 1px solid #ccc;
+}
+
+body.light .select-wrapper label {
+    background-color: #fff;
+    color: #555;
+}
+
+body.light .select-wrapper::after {
+    color: #888;
+}
+
+/* Opções */
+.select-wrapper select option {
+    background-color: #1a1a1a;
+    color: #fff;
+    padding: 10px;
+}
+
+body.light .select-wrapper select option {
+    background-color: #fff;
+    color: #111;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="background-gradient gradient-1"></div>
+<div class="background-gradient gradient-2"></div>
+
+<div class="container">
+    <h1 class="title">Criar Nova Máquina</h1>
+    <form action="/criar_maquina" method="POST">
+
+        <div class="form-group">
+            <input type="text" id="maquina-nome" name="maquina" placeholder=" " required>
+            <label for="maquina-nome">Nome da Máquina</label>
+            <i class="fa-solid fa-computer icon input-icon"></i>
+        </div>
+
+        <div class="form-group password-field">
+            <input type="password" id="maquina-senha" name="senha" placeholder=" " required>
+            <label for="maquina-senha">Senha da Máquina</label>
+            <i class="fa-solid fa-lock icon input-icon"></i>
+            <i class="fa-solid fa-eye-slash icon toggle-password" id="toggle-password"></i>
+        </div>
+
+        
+        <div class="form-group select-wrapper">
+            <select name="local" id="local" value="" required>
+                <option value="" disabled selected>Selecione um local...</option>
+                <option value="sg">Singapura</option>
+                <option value="sp">São Paulo</option>
+                <option value="us">Estados Unidos</option>
+                <option value="uk">Reino Unido</option>
+            </select>
+            <label for="local">Local da Máquina</label>
+        </div>
+
+        <label class="checkbox-group" for="termos-de-uso">
+            <input type="checkbox" id="termos-de-uso" name="termos_de_uso" required>
+            Aceito os termos da plataforma
+        </label>
+
+        <button type="submit">Criar Máquina</button>
+
+    </form>
+</div>
+
+<script>
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('maquina-senha');
+
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+</body>
+</html>

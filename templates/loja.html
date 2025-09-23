@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Apps SquareOS</title>
+    <link rel="icon" href="assets/icones/icones 1/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Variáveis e Reset */
+        :root {
+            --bg-dark: #0A0A0A;
+            --card-dark: #1E1E1E;
+            --text-light: #E0E0E0;
+            --text-muted: #888888;
+            --accent-color: #FFFFFF;
+            --button-bg: #222222;
+            --button-hover: #333333;
+            --border-color: #2D2D2D;
+            --shadow-light: #1A1A1A;
+            --shadow-dark: #050505;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Título */
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Layout da grade de aplicativos */
+        #apps-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Card do Aplicativo */
+        .app-card {
+            width: 280px;
+            background: var(--card-dark);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                -5px -5px 15px var(--shadow-dark),
+                5px 5px 15px var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                -8px -8px 20px var(--shadow-dark),
+                8px 8px 20px var(--shadow-light);
+        }
+
+        .app-card .app-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 2px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-card:hover .app-logo {
+            transform: scale(1.05);
+        }
+
+        .app-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .app-card .description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            flex-grow: 1; /* Faz o parágrafo ocupar espaço disponível */
+        }
+
+        .app-card .app-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .app-card .app-meta .rating {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        /* Botões */
+        .app-card button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            color: var(--accent-color);
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+        }
+
+        .app-card button:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 
+                -2px -2px 5px var(--shadow-dark),
+                2px 2px 5px var(--shadow-light);
+        }
+
+        .app-card button:disabled {
+            background: var(--card-dark);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+            border-color: var(--border-color);
+            opacity: 0.6;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <h1><i class="fas fa-store"></i> Loja de Apps</h1>
+
+    <div id="apps-container">
+        {% for app in apps %}
+        <div class="app-card">
+            <div>
+                <img class="app-logo" src="{{ app.logoapp }}" alt="Logo do app">
+                <h3>{{ app.nomeapp }}</h3>
+                <p class="description">{{ app.descricao_curta }}</p>
+            </div>
+            <div class="app-meta">
+                <span>Dev: {{ app.developer }}</span>
+                <span class="rating"><i class="fas fa-star"></i> {{ app.rating }}</span>
+            </div>
+
+            {% if compras.get(app.id) %}
+                <button disabled>✔ Já Comprado</button>
+            {% else %}
+                <button onclick="comprarApp({{ app.id }})">💰 Comprar</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function comprarApp(appId) {
+            axios.post(`/comprar/${appId}`)
+                .then(res => {
+                    alert(res.data.message);
+                    location.reload();
+                })
+                .catch(err => {
+                    alert("Erro ao comprar o app!");
+                    console.error(err);
+                });
+        }
+    </script>
+</body>
+</html>

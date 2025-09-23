@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SquareOS • Verificar</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="icon" href="assets/icones/icones 1/logo.png" type="image/png">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body {
+  height:100vh; display:flex; justify-content:center; align-items:center;
+  background: #0f0f0f;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 🌌 Aura roxa de tela inteira */
+body::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%; right: -50%; bottom: -50%;
+  background: radial-gradient(circle at 30% 30%, rgba(180,82,255,0.5), transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(100,82,255,0.5), transparent 50%);
+  filter: blur(120px);
+  z-index: 0;
+  animation: waveBody 10s infinite ease-in-out alternate;
+}
+
+@keyframes waveBody {
+  0%   { transform: scale(1) translate(0,0); opacity: 0.5; }
+  50%  { transform: scale(1.1) translate(30px,-20px); opacity: 0.8; }
+  100% { transform: scale(1) translate(-30px,20px); opacity: 0.5; }
+}
+
+.container {
+  position: relative;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 16px; padding: 35px 30px;
+  width: 360px; text-align:center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+  z-index: 1;
+  overflow: hidden;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  top: -20px; left: -20px; right: -20px; bottom: -20px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 20% 20%, rgba(180,82,255,0.6), transparent 70%),
+              radial-gradient(circle at 80% 80%, rgba(100,82,255,0.6), transparent 70%);
+  filter: blur(30px);
+  z-index: -1;
+  animation: waveBox 8s infinite ease-in-out alternate;
+}
+
+@keyframes waveBox {
+  0%   { transform: scale(1) translate(0,0); opacity: 0.5; }
+  50%  { transform: scale(1.05) translate(5px,-5px); opacity: 0.8; }
+  100% { transform: scale(1) translate(-5px,5px); opacity: 0.5; }
+}
+
+p.title {
+  font-size: 24px; font-weight:bold; color:#fff; margin-bottom:25px;
+  letter-spacing:1px;
+}
+
+.input-group {
+  position: relative; margin-bottom: 18px;
+}
+
+.input-group i {
+  position: absolute; left:12px; top:50%;
+  transform: translateY(-50%);
+  color:#ccc; font-size:16px;
+}
+
+input[type="text"] {
+  width: 100%; padding:12px 12px 12px 36px; border:none;
+  border-radius:12px; background: rgba(255,255,255,0.15);
+  color:#fff; font-size:14px; outline:none; transition:0.3s;
+  position: relative; z-index: 1;
+}
+
+input::placeholder { color:#ccc; }
+
+.input-group::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 20% 20%, rgba(180,82,255,0.4), transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(100,82,255,0.4), transparent 60%);
+  filter: blur(16px);
+  opacity: 0.6;
+  animation: wave 6s infinite ease-in-out alternate;
+  z-index: 0;
+}
+
+@keyframes wave {
+  0%   { transform: scale(1) translate(0,0); opacity: 0.5; }
+  50%  { transform: scale(1.05) translate(3px,-3px); opacity: 0.7; }
+  100% { transform: scale(1) translate(-3px,3px); opacity: 0.5; }
+}
+
+input:focus {
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 10px rgba(160,82,255,0.5);
+}
+
+button {
+  width:100%; padding:12px; margin-top:15px;
+  border:none; border-radius:10px;
+  background: linear-gradient(135deg, #3a9bdc, #005bea);
+  color:#fff; font-size:16px; font-weight:bold;
+  cursor:pointer; transition:0.3s;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #005bea, #3a9bdc);
+  transform: scale(1.03);
+}
+</style>
+</head>
+<body>
+<form action="/verified" method="post" autocomplete="off" novalidate>
+  <div class="container">
+    <p class="title">VERIFICAR CONTA</p>
+    <div class="input-group">
+      <i class="fa-solid fa-key"></i>
+      <input type="text" placeholder="Digite o código enviado ao seu e-mail..." maxlength="6" id="codigo" name="codigo" required />
+    </div>
+    <button type="submit">Verificar Código</button>
+  </div>
+</form>
+</body>
+</html>
