@@ -5,4 +5,4 @@ flask_cors==4.0.0
 Werkzeug==3.0.3
 SQLAlchemy==2.0.34
 sentence-transformers==3.0.1
-torch==2.4.1
+
