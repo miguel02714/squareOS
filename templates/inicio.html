@@ -4,26 +4,218 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parabéns VIP!</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Paleta de Cores e Configurações Globais */
+        :root {
+            --color-dark-background: #0d0d0d; /* Fundo mais escuro */
+            --color-card-background: #1a1a1a; /* Fundo do card */
+            --color-text-primary: #f0f0f0;
+            --color-highlight-purple: #9b59b6; /* Roxo/Magenta */
+            --color-highlight-yellow: #f1c40f; /* Amarelo/Dourado */
+            --color-button-hover: #b070c7;
+            --transition-speed: 0.4s;
+            --button-click-color: #7d4493;
+        }
+
+        /* Estilos de Corpo e Fundo */
+        body {
+            background-color: var(--color-dark-background);
+            color: var(--color-text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px; /* Para efeitos 3D */
+        }
+
+        /* Card Principal */
+        .vip-card {
+            background-color: var(--color-card-background);
+            border-radius: 18px;
+            padding: 50px;
+            text-align: center;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(155, 89, 182, 0.2); /* Borda sutil */
+
+            /* Estado Inicial (Escondido) */
+            opacity: 0;
+            transform: translateY(30px) scale(0.95) rotateX(-10deg);
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição de entrada mais suave */
+        }
+
+        /* Classe para mostrar o card (via JS) */
+        .vip-card.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1) rotateX(0deg);
+        }
+
+        /* Título e Mensagem */
+        .title {
+            font-size: 3em;
+            color: var(--color-highlight-purple);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+
+        .message {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin: 0 0 40px 0;
+            color: #b0b0b0;
+        }
+
+        .highlight {
+            color: var(--color-highlight-purple);
+            font-weight: bold;
+        }
+
+        /* Estrela VIP */
+        .vip-star {
+            font-size: 4em;
+            color: var(--color-highlight-yellow);
+            text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite alternate; /* Animação sutil de pulsar */
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* Botão Continuar */
+        .continue-button {
+            background-color: var(--color-highlight-purple);
+            color: var(--color-text-primary);
+            border: none;
+            border-radius: 10px;
+            padding: 18px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
+            /* Transição Fluida! */
+            transition: all var(--transition-speed) ease-in-out;
+            position: relative;
+            overflow: hidden; /* Para o efeito de onda/ripple */
+        }
+
+        .continue-button:hover {
+            background-color: var(--color-button-hover);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(155, 89, 182, 0.6);
+        }
+
+        .continue-button:active {
+            background-color: var(--button-click-color);
+            transform: translateY(-2px) scale(0.99);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        /* Efeito de Confete (CSS + JS) */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-highlight-purple);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 9999;
+            animation: confetti-fall 2s ease-out forwards;
+        }
+
+        /* Cores variadas para os confetes */
+        .confetti:nth-child(3n+1) { background-color: var(--color-highlight-yellow); }
+        .confetti:nth-child(3n+2) { background-color: var(--color-highlight-purple); }
+        .confetti:nth-child(3n) { background-color: #ffffff; /* branco para contraste */ }
+
+        @keyframes confetti-fall {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(500px) rotate(720deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="vip-card">
-            <div class="icon-header">
-                <i class="fas fa-star vip-star"></i>
-            </div>
-            
-            <h1 class="title">PARABÉNS!</h1>
-            
-            <p class="message">
-                **VOCÊ COMPROU O VIP.** Agora você tem acesso a <span class="highlight">benefícios exclusivos</span> para levar sua experiência ao próximo nível.
-            </p>
-            
-            <button class="continue-button">
-                CONTINUAR
-            </button>
-        </div>
+    <div class="vip-card" id="vipCard">
+        <i class="fas fa-star vip-star"></i>
+        
+        <h1 class="title">PARABÉNS!</h1>
+        
+        <p class="message">
+            Você comprou o **VIP**. Agora você tem acesso a <span class="highlight">benefícios exclusivos</span> para levar sua experiência ao próximo nível!
+        </p>
+        
+        <button class="continue-button" id="continueButton">
+            CONTINUAR
+        </button>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const vipCard = document.getElementById('vipCard');
+            const continueButton = document.getElementById('continueButton');
+
+            // 1. Animação de entrada do Card (mais fluida com JS)
+            setTimeout(() => {
+                vipCard.classList.add('is-visible');
+            }, 100); // Pequeno atraso para garantir o CSS inicial
+
+            // 2. Função de Efeito Confetes
+            function launchConfetti(x, y) {
+                const colors = ['var(--color-highlight-purple)', 'var(--color-highlight-yellow)', '#ffffff'];
+                const numberOfConfetti = 20;
+                
+                for (let i = 0; i < numberOfConfetti; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // Posição inicial levemente aleatória
+                    confetti.style.left = `${x + (Math.random() - 0.5) * 50}px`;
+                    confetti.style.top = `${y + (Math.random() - 0.5) * 50}px`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // Adiciona um pequeno atraso e duração aleatória para um efeito mais natural
+                    const duration = 1.5 + Math.random(); 
+                    confetti.style.animationDuration = `${duration}s`;
+                    confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+
+                    document.body.appendChild(confetti);
+
+                    // Remove o confete do DOM após a animação
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, duration * 1000 + 500);
+                }
+            }
+
+            // 3. Efeito ao clicar no botão
+            continueButton.addEventListener('click', (event) => {
+                // Efeito Confetes no local do clique do botão
+                const rect = continueButton.getBoundingClientRect();
+                const buttonCenterX = rect.left + rect.width / 2;
+                const buttonCenterY = rect.top + rect.height / 2;
+                
+                launchConfetti(buttonCenterX, buttonCenterY);
+
+                // Feedback visual de clique no botão (já tratado no CSS :active)
+                
+                // Exemplo: Simular a navegação após um breve delay
+                // setTimeout(() => {
+                //     window.location.href = "/pagina-de-beneficios-vip"; 
+                // }, 500); 
+            });
+        });
+    </script>
 </body>
 </html>
